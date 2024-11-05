@@ -9,7 +9,7 @@
 #include "./modules/entropy.c"
 
 #define PACKETS_AMOUNT 10
-#define INTERFACE "ens"
+#define INTERFACE "ens33"
 
 // =========================================
 // variables we will write down to csv file:
@@ -30,6 +30,14 @@ size_t packet_sizes[PACKETS_AMOUNT];
 size_t packet_count;
 
 void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const uint8_t *packet) {
+    printf("New packet:\n");
+    for (int i = 0; i < header->len; i++) {
+        printf("%02x ", packet[i]);
+        if ((i + 1) % 16 == 0) printf("\n");
+    }
+    printf("\n");
+    printf("\n");
+    
     // for standart packet len deviation:
     packet_sizes[packet_count] = header->len;
     ++packet_count;
@@ -76,10 +84,10 @@ void *listen_on_device(void *device_name) {
         // counting standart packet len deviation:
         standard_deviation = count_deviation(packet_sizes, PACKETS_AMOUNT);
 
-        printf("Minimum Packet Size: %zu bytesn", min_packet_size);
-        printf("Maximum Packet Size: %zu bytesn", max_packet_size);
-        printf("Packet Size Standard Deviation: %.4f bytesn", standard_deviation);
-        printf("Packet Entropy: %.4f bytesn", entropy);
+        printf("Minimum Packet Size: %zu bytes\n", min_packet_size);
+        printf("Maximum Packet Size: %zu bytes\n", max_packet_size);
+        printf("Packet Size Standard Deviation: %.4f bytes\n", standard_deviation);
+        printf("Packet Entropy: %.4f bytes\n", entropy);
     }
 
     pcap_close(handle);
