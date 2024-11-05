@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "stdint.h": "c",
+    "stdlib.h": "c",
+    "stdio.h": "c",
+    "net_sniffer.h": "c",
+    "stddef.h": "c",
+    "type_traits": "c",
+    "math.h": "c"
+  }
+}
