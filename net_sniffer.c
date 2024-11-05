@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "./modules/deviation.c"
 #include "./modules/entropy.c"
 
-const size_t DEVICES_AMOUNT = 1;
-const size_t PACKETS_AMOUNT = 10;
+#define PACKETS_AMOUNT 10
+#define INTERFACE "ens"
 
 // =========================================
 // variables we will write down to csv file:
@@ -85,7 +86,7 @@ void *listen_on_device(void *device_name) {
     return NULL;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     if (argc != 3) {
         fprintf(stderr, "Usage: %s <client_ip> <server_ip>n", argv[0]);
         return 1;
@@ -102,9 +103,9 @@ int main() {
     char errbuf[PCAP_ERRBUF_SIZE];
 
     // Открываем интерфейс для захвата
-    handle = pcap_open_live(INTERFACE1, BUFSIZ, 1, 1000, errbuf);
+    handle = pcap_open_live(INTERFACE, BUFSIZ, 1, 1000, errbuf);
     if (handle == NULL) {
-        fprintf(stderr, "Could not open device %s: %sn", INTERFACE1, errbuf);
+        fprintf(stderr, "Could not open device %s: %sn", INTERFACE, errbuf);
         return 1;
     }
 
@@ -119,20 +120,14 @@ int main() {
         return 1;
     }
 
-    // devices:
-    char devices[DEVICES_AMOUNT] = {/**"lo", */ "ens33"};
-    pthread_t threads[DEVICES_AMOUNT];
+    pthread_t thread;
 
-    // threads for each device:
-    for (int i = 0; i < DEVICES_AMOUNT; ++i) {
-        if (pthread_create(&threads[i], NULL, listen_on_device, (void *)devices[i]) != 0) {
-            fprintf(stderr, "Error creating thread for device %s\n", devices[i]);
-            return 1;
-        }
+    if (pthread_create(&thread, NULL, listen_on_device, (void *)INTERFACE) != 0) {
+        fprintf(stderr, "Error creating thread for device %s\n", INTERFACE);
+        return 1;
     }
 
-    for (int i = 0; i < DEVICES_AMOUNT; ++i)
-        pthread_join(threads[i], NULL);
+    pthread_join(thread, NULL);
 
     return 0;
 }
