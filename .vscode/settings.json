@@ -6,6 +6,13 @@
     "net_sniffer.h": "c",
     "stddef.h": "c",
     "type_traits": "c",
-    "math.h": "c"
+    "math.h": "c",
+    "string.h": "c",
+    "stdbool.h": "c",
+    "constants.h": "c",
+    "inet.h": "c",
+    "pthread.h": "c",
+    "cstdint": "c",
+    "compare": "c"
   }
 }

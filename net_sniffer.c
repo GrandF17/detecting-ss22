@@ -5,18 +5,40 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <arpa/inet.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <string.h>
+#include <stdbool.h>
+
+#include "./modules/constants.h"
+
+#include "./modules/tls_lable.c"
+#include "./modules/ssh_lable.c"
 #include "./modules/deviation.c"
 #include "./modules/entropy.c"
 
-#define PACKETS_AMOUNT 10
+#define PACKETS_AMOUNT 50
 #define INTERFACE "ens33"
+
+char *client_ip;
+char *server_ip;
 
 // =========================================
 // variables we will write down to csv file:
+size_t client_server_packets_amount[2];
 size_t min_packet_size;
 size_t max_packet_size;
-double standard_deviation;
+double packet_len_deviation;
 double entropy;
+// most representative:
+bool udp_lable;
+bool tcp_lable;
+bool sctp_lable;
+// using only port recognition:
+bool tls_lable;
+bool ssh_lable;
 
 // ==================
 // service variables:
@@ -25,18 +47,50 @@ double entropy;
 size_t empty_bits;
 size_t filled_bits;
 
-// standard_deviation
+// packet_len_deviation
 size_t packet_sizes[PACKETS_AMOUNT];
 size_t packet_count;
 
 void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const uint8_t *packet) {
-    printf("New packet:\n");
-    for (int i = 0; i < header->len; i++) {
-        printf("%02x ", packet[i]);
-        if ((i + 1) % 16 == 0) printf("\n");
+    struct ip *ip_header = (struct ip *)(packet + ETHERNET_HEADER_LEN); // Ethernet header is 14 bytes
+    int ip_header_length = ip_header->ip_hl * 4;
+
+    if (ip_header->ip_p == IPPROTO_TCP) {
+        tcp_lable = true;
+    } else if (ip_header->ip_p == IPPROTO_UDP) {
+        udp_lable = true;
+    } else if(ip_header->ip_p == IPPROTO_SCTP) {
+        sctp_lable = true;
     }
-    printf("\n");
-    printf("\n");
+
+    tls_lable = has_tls_lable(header, packet);
+    ssh_lable = has_ssh_lable(header, packet);
+    
+    // if(
+    //     strncmp(inet_ntoa(ip_header->ip_src), client_ip, ip_header->ip_id) == 0 &&
+    //     strncmp(inet_ntoa(ip_header->ip_dst), server_ip, ip_header->ip_id) == 0
+    // ) {
+    //     // printf("Src: %s\n", inet_ntoa(ip_header->ip_src));
+    //     // printf("Dst: %s\n", inet_ntoa(ip_header->ip_dst));
+    //     // printf("Client: %s\n", client_ip);
+    //     // printf("Server: %s\n", server_ip);
+    //     // printf("Header len: %d\n", ip_header->ip_id);
+
+    //     ++client_server_packets_amount[0];
+    // } else if(
+    //     strncmp(inet_ntoa(ip_header->ip_src), server_ip, ip_header->ip_id) == 0 &&
+    //     strncmp(inet_ntoa(ip_header->ip_dst), client_ip, ip_header->ip_id) == 0
+    // ) {
+    //     ++client_server_packets_amount[1];
+    // }
+
+    // for tcp:
+    // inet_ntoa(ip_header->ip_src), ntohs(tcp_header->source)
+    // inet_ntoa(ip_header->ip_dst), ntohs(tcp_header->dest)
+    // for udp:
+    // struct udphdr *udp_header = (struct udphdr *)(packet + 14 + ip_header_length);
+    // inet_ntoa(ip_header->ip_src), ntohs(udp_header->source)
+    // inet_ntoa(ip_header->ip_dst), ntohs(udp_header->dest)
     
     // for standart packet len deviation:
     packet_sizes[packet_count] = header->len;
@@ -76,18 +130,28 @@ void *listen_on_device(void *device_name) {
     /*while(1)*/ {
         // listen for 10 packets:
         printf("Listening on device: %s\n", (char *)device_name);
-        pcap_loop(handle, 10, packet_handler, NULL);
+        pcap_loop(handle, PACKETS_AMOUNT, packet_handler, NULL);
 
         // counting entropy:
         entropy = count_bin_entropy(empty_bits, filled_bits);
 
         // counting standart packet len deviation:
-        standard_deviation = count_deviation(packet_sizes, PACKETS_AMOUNT);
+        packet_len_deviation = count_deviation(packet_sizes, PACKETS_AMOUNT);
 
+        printf("Client Passed: %zu packets\n", client_server_packets_amount[0]);
+        printf("Server Passed: %zu packets\n", client_server_packets_amount[0]);
         printf("Minimum Packet Size: %zu bytes\n", min_packet_size);
         printf("Maximum Packet Size: %zu bytes\n", max_packet_size);
-        printf("Packet Size Standard Deviation: %.4f bytes\n", standard_deviation);
-        printf("Packet Entropy: %.4f bytes\n", entropy);
+        printf("Packet Size Standard Deviation: %.4f bytes\n", packet_len_deviation);
+        printf("Packet Entropy: %.4f\n", entropy);
+
+        printf("Protocols detected: ");
+        if(udp_lable) printf("udp ");
+        if(tcp_lable) printf("tcp ");
+        if(sctp_lable) printf("sctp ");
+        if(ssh_lable) printf("ssh ");
+        if(tls_lable) printf("tls ");
+        printf("\n");
     }
 
     pcap_close(handle);
@@ -100,8 +164,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    char *client_ip = argv[1];
-    char *server_ip = argv[2];
+    client_ip = argv[1];
+    server_ip = argv[2];
 
     // Создаем фильтр для захвата пакетов от клиента к серверу и от сервера к клиенту
     char filter_exp[200];
