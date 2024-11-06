@@ -19,7 +19,7 @@
 #include "./modules/deviation.c"
 #include "./modules/entropy.c"
 
-#define PACKETS_AMOUNT 50
+#define PACKETS_AMOUNT 10
 #define INTERFACE "ens33"
 
 char *client_ip;
@@ -27,11 +27,11 @@ char *server_ip;
 
 // =========================================
 // variables we will write down to csv file:
-size_t client_server_packets_amount[2];
 size_t min_packet_size;
 size_t max_packet_size;
 double packet_len_deviation;
 double entropy;
+double entropy_deviation;
 // most representative:
 bool udp_lable;
 bool tcp_lable;
@@ -48,8 +48,9 @@ size_t empty_bits;
 size_t filled_bits;
 
 // packet_len_deviation
-size_t packet_sizes[PACKETS_AMOUNT];
 size_t packet_count;
+size_t packet_sizes[PACKETS_AMOUNT];
+double packet_entropy[PACKETS_AMOUNT];
 
 void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const uint8_t *packet) {
     struct ip *ip_header = (struct ip *)(packet + ETHERNET_HEADER_LEN); // Ethernet header is 14 bytes
@@ -66,34 +67,10 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     tls_lable = has_tls_lable(header, packet);
     ssh_lable = has_ssh_lable(header, packet);
     
-    // if(
-    //     strncmp(inet_ntoa(ip_header->ip_src), client_ip, ip_header->ip_id) == 0 &&
-    //     strncmp(inet_ntoa(ip_header->ip_dst), server_ip, ip_header->ip_id) == 0
-    // ) {
-    //     // printf("Src: %s\n", inet_ntoa(ip_header->ip_src));
-    //     // printf("Dst: %s\n", inet_ntoa(ip_header->ip_dst));
-    //     // printf("Client: %s\n", client_ip);
-    //     // printf("Server: %s\n", server_ip);
-    //     // printf("Header len: %d\n", ip_header->ip_id);
-
-    //     ++client_server_packets_amount[0];
-    // } else if(
-    //     strncmp(inet_ntoa(ip_header->ip_src), server_ip, ip_header->ip_id) == 0 &&
-    //     strncmp(inet_ntoa(ip_header->ip_dst), client_ip, ip_header->ip_id) == 0
-    // ) {
-    //     ++client_server_packets_amount[1];
-    // }
-
-    // for tcp:
-    // inet_ntoa(ip_header->ip_src), ntohs(tcp_header->source)
-    // inet_ntoa(ip_header->ip_dst), ntohs(tcp_header->dest)
-    // for udp:
-    // struct udphdr *udp_header = (struct udphdr *)(packet + 14 + ip_header_length);
-    // inet_ntoa(ip_header->ip_src), ntohs(udp_header->source)
-    // inet_ntoa(ip_header->ip_dst), ntohs(udp_header->dest)
-    
-    // for standart packet len deviation:
+    // packet len deviation:
     packet_sizes[packet_count] = header->len;
+    // entropy deviation:
+    packet_entropy[packet_count] = count_packet_entropy(packet, header->len);
     ++packet_count;
 
     // min packet len
@@ -111,8 +88,8 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
         max_packet_size =
             max_packet_size > header->len ? max_packet_size : header->len;
     }
-
-    // entropy
+    
+    // total flow entropy:
     for (size_t i = 0; i < header->len; ++i) {
         empty_bits += 8 - bit_count_table[packet[i]];
         filled_bits += bit_count_table[packet[i]];
@@ -136,14 +113,14 @@ void *listen_on_device(void *device_name) {
         entropy = count_bin_entropy(empty_bits, filled_bits);
 
         // counting standart packet len deviation:
-        packet_len_deviation = count_deviation(packet_sizes, PACKETS_AMOUNT);
+        packet_len_deviation = count_deviation_generic(packet_sizes, PACKETS_AMOUNT);
+        entropy_deviation = count_deviation_generic(packet_entropy, PACKETS_AMOUNT);
 
-        printf("Client Passed: %zu packets\n", client_server_packets_amount[0]);
-        printf("Server Passed: %zu packets\n", client_server_packets_amount[0]);
         printf("Minimum Packet Size: %zu bytes\n", min_packet_size);
         printf("Maximum Packet Size: %zu bytes\n", max_packet_size);
         printf("Packet Size Standard Deviation: %.4f bytes\n", packet_len_deviation);
         printf("Packet Entropy: %.4f\n", entropy);
+        printf("Packet Entropy Deviation: %.4f\n", entropy_deviation);
 
         printf("Protocols detected: ");
         if(udp_lable) printf("udp ");
