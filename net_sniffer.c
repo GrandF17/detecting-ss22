@@ -22,8 +22,12 @@
 #define PACKETS_AMOUNT 10
 #define INTERFACE "ens33"
 
+struct thread_args {
+    const char *interface;
+    const char *client_ip;
+};
+
 char *client_ip;
-char *server_ip;
 
 // =========================================
 // variables we will write down to csv file:
@@ -64,6 +68,15 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
         sctp_lable = true;
     }
 
+    char src_ip[INET_ADDRSTRLEN];
+    char dst_ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(ip_header->ip_src), src_ip, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &(ip_header->ip_dst), dst_ip, INET_ADDRSTRLEN);
+
+    printf("Source IP: %s\n", src_ip);
+    printf("Destination IP: %s\n", dst_ip);
+    // printf("From: %s; to: %s\n", inet_ntoa(ip_header->ip_src), inet_ntoa(ip_header->ip_dst));
+
     tls_lable = has_tls_lable(header, packet);
     ssh_lable = has_ssh_lable(header, packet);
     
@@ -96,17 +109,38 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     }
 }
 
-void *listen_on_device(void *device_name) {
-    char error_buffer[PCAP_ERRBUF_SIZE];
-    pcap_t *handle = pcap_open_live((char *)device_name, BUFSIZ, 1, 1000, error_buffer);
+void *listen_on_device(void* args) {
+    struct thread_args *thread_data = (struct thread_args *)args;
+    const char* device_name = (char *)thread_data->interface;
+    const char *client_ip = (char *)thread_data->client_ip;
+
+    char filter_exp[50];
+    char errbuf[PCAP_ERRBUF_SIZE];
+
+    // creating client oriented filter:
+    snprintf(filter_exp, sizeof(filter_exp), "host %s", client_ip);
+
+    // opening interface to capture
+    pcap_t *handle = pcap_open_live(device_name, BUFSIZ, 1, 1000, errbuf);
     if (handle == NULL) {
-        fprintf(stderr, "Failed to open device %s: %s\n", (char *)device_name, error_buffer);
+        fprintf(stderr, "Could not open device %s: %sn", device_name, errbuf);
         return NULL;
     }
 
+    // setting up filter
+    struct bpf_program fp;
+    if (pcap_compile(handle, &fp, filter_exp, 0, PCAP_NETMASK_UNKNOWN) == -1) {
+        fprintf(stderr, "Could not parse filter %s: %sn", filter_exp, pcap_geterr(handle));
+        return NULL;
+    }
+    if (pcap_setfilter(handle, &fp) == -1) {
+        fprintf(stderr, "Could not install filter %s: %sn", filter_exp, pcap_geterr(handle));
+        return NULL;
+    }
+    
     /*while(1)*/ {
         // listen for 10 packets:
-        printf("Listening on device: %s\n", (char *)device_name);
+        printf("Listening on device: %s\n", device_name);
         pcap_loop(handle, PACKETS_AMOUNT, packet_handler, NULL);
 
         // counting entropy:
@@ -136,42 +170,17 @@ void *listen_on_device(void *device_name) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <client_ip> <server_ip>n", argv[0]);
-        return 1;
-    }
-
-    client_ip = argv[1];
-    server_ip = argv[2];
-
-    // Создаем фильтр для захвата пакетов от клиента к серверу и от сервера к клиенту
-    char filter_exp[200];
-    snprintf(filter_exp, sizeof(filter_exp), "ip host %s and (ip dst %s or ip src %s)", client_ip, server_ip, server_ip);
-
-    pcap_t *handle;
-    char errbuf[PCAP_ERRBUF_SIZE];
-
-    // Открываем интерфейс для захвата
-    handle = pcap_open_live(INTERFACE, BUFSIZ, 1, 1000, errbuf);
-    if (handle == NULL) {
-        fprintf(stderr, "Could not open device %s: %sn", INTERFACE, errbuf);
-        return 1;
-    }
-
-    // Устанавливаем фильтр
-    struct bpf_program fp;
-    if (pcap_compile(handle, &fp, filter_exp, 0, PCAP_NETMASK_UNKNOWN) == -1) {
-        fprintf(stderr, "Could not parse filter %s: %sn", filter_exp, pcap_geterr(handle));
-        return 1;
-    }
-    if (pcap_setfilter(handle, &fp) == -1) {
-        fprintf(stderr, "Could not install filter %s: %sn", filter_exp, pcap_geterr(handle));
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <CLIENT_IP_ADDRESS>\n", argv[0]);
         return 1;
     }
 
     pthread_t thread;
+    struct thread_args args;
+    args.interface = INTERFACE;
+    args.client_ip = argv[1];
 
-    if (pthread_create(&thread, NULL, listen_on_device, (void *)INTERFACE) != 0) {
+    if (pthread_create(&thread, NULL, listen_on_device, (void *)&args) != 0) {
         fprintf(stderr, "Error creating thread for device %s\n", INTERFACE);
         return 1;
     }
