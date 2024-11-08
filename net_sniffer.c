@@ -12,6 +12,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "./containers/map.c"
+
 #include "./modules/constants.h"
 
 #include "./modules/tls_lable.c"
@@ -58,13 +60,9 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     struct ip *ip_header = (struct ip *)(packet + ETHERNET_HEADER_LEN); // Ethernet header is 14 bytes
     int ip_header_length = ip_header->ip_hl * 4;
 
-    if (ip_header->ip_p == IPPROTO_TCP) {
-        tcp_lable = true;
-    } else if (ip_header->ip_p == IPPROTO_UDP) {
-        udp_lable = true;
-    } else if(ip_header->ip_p == IPPROTO_SCTP) {
-        sctp_lable = true;
-    }
+    if (ip_header->ip_p == IPPROTO_TCP) tcp_lable = true;
+    else if (ip_header->ip_p == IPPROTO_UDP) udp_lable = true;
+    else if(ip_header->ip_p == IPPROTO_SCTP) sctp_lable = true;
 
     char src_ip[INET_ADDRSTRLEN];
     char dst_ip[INET_ADDRSTRLEN];
@@ -173,17 +171,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    pthread_t thread;
     struct thread_args args;
     args.interface = INTERFACE;
     args.client_ip = argv[1];
 
-    if (pthread_create(&thread, NULL, listen_on_device, (void *)&args) != 0) {
-        fprintf(stderr, "Error creating thread for device %s\n", INTERFACE);
-        return 1;
-    }
-
-    pthread_join(thread, NULL);
+    listen_on_device((void *)&args);
 
     return 0;
 }

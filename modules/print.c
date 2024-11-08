@@ -31,3 +31,13 @@
 // struct udphdr *udp_header = (struct udphdr *)(packet + 14 + ip_header_length);
 // inet_ntoa(ip_header->ip_src), ntohs(udp_header->source)
 // inet_ntoa(ip_header->ip_dst), ntohs(udp_header->dest)
+
+
+
+// pthread_t thread;
+// if (pthread_create(&thread, NULL, listen_on_device, (void *)&args) != 0) {
+//     fprintf(stderr, "Error creating thread for device %s\n", INTERFACE);
+//     return 1;
+// }
+
+// pthread_join(thread, NULL);
