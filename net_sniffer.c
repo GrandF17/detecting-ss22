@@ -79,6 +79,7 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
         // counting standart packet len deviation:
         session->packet_len_deviation = count_deviation_generic(session->packet_sizes, PACKETS_AMOUNT);
         session->entropy_deviation = count_deviation_generic(session->packet_entropy, PACKETS_AMOUNT);
+        session->entropy = count_bin_entropy(session->empty_bits, session->filled_bits);
 
         appendCSV("data.csv", session);
         logCSV(session);
@@ -158,7 +159,7 @@ void *listen_on_device() {
     }
 
     printf("Listening on device: %s\n", INTERFACE);
-    pcap_loop(handle, 100, packet_handler, NULL);
+    pcap_loop(handle, 0, packet_handler, NULL);
     pcap_close(handle);
 
     return NULL;

@@ -24,13 +24,15 @@ int appendCSV(const char* file_name, const FlowStat* data) {
     fprintf(file, "%d, ", (uint8_t)data->sctp_lable);
     fprintf(file, "%d, ", (uint8_t)data->tls_lable);
     fprintf(file, "%d, ", (uint8_t)data->ssh_lable);
-    fprintf(file, "1\n");  // 1 --> ss22, 0 --> other
+    fprintf(file, "0\n");  // 1 --> ss22, 0 --> other
 
     fclose(file);
     return 0;
 }
 
 void logCSV(const FlowStat* data) {
+    printf("%s, ", data->rec_ip);
+
     printf("%ld, ", data->min_packet_size);
     printf("%ld, ", data->max_packet_size);
     printf("%.4f, ", data->packet_len_deviation);
