@@ -32,8 +32,6 @@
 // inet_ntoa(ip_header->ip_src), ntohs(udp_header->source)
 // inet_ntoa(ip_header->ip_dst), ntohs(udp_header->dest)
 
-
-
 // pthread_t thread;
 // if (pthread_create(&thread, NULL, listen_on_device, (void *)&args) != 0) {
 //     fprintf(stderr, "Error creating thread for device %s\n", INTERFACE);
@@ -41,3 +39,32 @@
 // }
 
 // pthread_join(thread, NULL);
+
+//
+
+// // counting entropy:
+// entropy = count_bin_entropy(empty_bits, filled_bits);
+
+// // counting standart packet len deviation:
+// packet_len_deviation = count_deviation_generic(packet_sizes, PACKETS_AMOUNT);
+// entropy_deviation = count_deviation_generic(packet_entropy, PACKETS_AMOUNT);
+
+// printf("Minimum Packet Size: %zu bytes\n", min_packet_size);
+// printf("Maximum Packet Size: %zu bytes\n", max_packet_size);
+// printf("Packet Size Standard Deviation: %.4f bytes\n", packet_len_deviation);
+// printf("Packet Entropy: %.4f\n", entropy);
+// printf("Packet Entropy Deviation: %.4f\n", entropy_deviation);
+
+// printf("Protocols detected: ");
+// if (udp_lable) printf("udp ");
+// if (tcp_lable) printf("tcp ");
+// if (sctp_lable) printf("sctp ");
+// if (ssh_lable) printf("ssh ");
+// if (tls_lable) printf("tls ");
+// printf("\n");
+
+//
+
+// printf("Source IP: %s\n", src_ip);
+// printf("Destination IP: %s\n", dst_ip);
+// printf("From: %s; to: %s\n", inet_ntoa(ip_header->ip_src), inet_ntoa(ip_header->ip_dst));

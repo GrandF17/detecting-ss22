@@ -1,12 +1,3 @@
-#ifndef SNIFFER_MODULES_CONSTANTS_H_INCLUDED
-#define SNIFFER_MODULES_CONSTANTS_H_INCLUDED
-
-#include <stdbool.h>
-
-#define ETHERNET_HEADER_LEN 14
-#define PACKETS_AMOUNT 10
-#define INTERFACE "ens33"
-
 typedef struct {
     // =========================================
     // variables we will write down to csv file:
@@ -36,5 +27,3 @@ typedef struct {
     size_t packet_count;
     size_t packet_sizes[PACKETS_AMOUNT];
 } FlowStat;
-
-#endif
