@@ -1,13 +1,17 @@
 #ifndef SNIFFER_MODULES_CONSTANTS_H_INCLUDED
 #define SNIFFER_MODULES_CONSTANTS_H_INCLUDED
 
+#include <arpa/inet.h>
 #include <stdbool.h>
+
+#define MAX_IP_COUNT 100
 
 #define ETHERNET_HEADER_LEN 14
 #define PACKETS_AMOUNT 10
 #define INTERFACE "ens33"
 
 typedef struct {
+    char rec_ip[INET_ADDRSTRLEN];
     // =========================================
     // variables we will write down to csv file:
 

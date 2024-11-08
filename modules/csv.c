@@ -14,11 +14,11 @@ int appendCSV(const char* file_name, const FlowStat* data) {
         return 1;
     }
 
-    fprintf(file, "%d, ", data->min_packet_size);
-    fprintf(file, "%d, ", data->max_packet_size);
-    fprintf(file, "%d, ", data->packet_len_deviation);
-    fprintf(file, "%d, ", data->entropy);
-    fprintf(file, "%d, ", data->entropy_deviation);
+    fprintf(file, "%ld, ", data->min_packet_size);
+    fprintf(file, "%ld, ", data->max_packet_size);
+    fprintf(file, "%.4f, ", data->packet_len_deviation);
+    fprintf(file, "%.4f, ", data->entropy);
+    fprintf(file, "%.4f, ", data->entropy_deviation);
     fprintf(file, "%d, ", (uint8_t)data->udp_lable);
     fprintf(file, "%d, ", (uint8_t)data->tcp_lable);
     fprintf(file, "%d, ", (uint8_t)data->sctp_lable);
@@ -30,12 +30,12 @@ int appendCSV(const char* file_name, const FlowStat* data) {
     return 0;
 }
 
-void log(const FlowStat* data) {
-    printf("%d, ", data->min_packet_size);
-    printf("%d, ", data->max_packet_size);
-    printf("%d, ", data->packet_len_deviation);
-    printf("%d, ", data->entropy);
-    printf("%d, ", data->entropy_deviation);
+void logCSV(const FlowStat* data) {
+    printf("%ld, ", data->min_packet_size);
+    printf("%ld, ", data->max_packet_size);
+    printf("%.4f, ", data->packet_len_deviation);
+    printf("%.4f, ", data->entropy);
+    printf("%.4f, ", data->entropy_deviation);
     printf("%d, ", (uint8_t)data->udp_lable);
     printf("%d, ", (uint8_t)data->tcp_lable);
     printf("%d, ", (uint8_t)data->sctp_lable);

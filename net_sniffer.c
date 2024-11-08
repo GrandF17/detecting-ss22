@@ -15,10 +15,6 @@
 
 // =========================
 
-#include "./containers/map.c"
-
-// =========================
-
 #include "./modules/csv.c"
 #include "./modules/deviation.c"
 #include "./modules/entropy.c"
@@ -27,16 +23,36 @@
 
 // =========================
 
-struct thread_args {
-    const char *interface;
-    const char *client_ip;
-};
+const char *client_ip;
 
-// free function for a FlowStat
-void free_data(void *value) {
-    free((FlowStat *)value);
+FlowStat ip_stats[MAX_IP_COUNT];
+int ip_count = 0;
+
+int get_stat_idx(const char *ip_address) {
+    for (int i = 0; i < ip_count; ++i) {
+        if (strcmp(ip_stats[i].rec_ip, ip_address) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
 }
-Map *interaction_map = create_map(free_data);
+
+int create_stat(const char *ip_address) {
+    int ip_id = get_stat_idx(ip_address);
+    if (ip_id != -1) {
+        memset(&ip_stats[ip_id], 0, sizeof(FlowStat));
+        return ip_id;
+    }
+
+    // if ip was not found --> add new one
+    if (ip_count < MAX_IP_COUNT) {
+        strcpy(ip_stats[ip_count].rec_ip, ip_address);
+        return ip_count++;
+    }
+
+    return -1;
+}
 
 //////////////////////////////
 
@@ -49,12 +65,13 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     inet_ntop(AF_INET, &(ip_header->ip_dst), dst_ip, INET_ADDRSTRLEN);
 
     const char *remote_ip = strcmp(src_ip, client_ip) == 0 ? dst_ip : src_ip;
+    int id = get_stat_idx(remote_ip);
     FlowStat *session;
 
-    if (map_get(interaction_map, remote_ip) == NULL) {
-        session = (FlowStat *)malloc(sizeof(FlowStat));
+    if (id == -1) {
+        session = &ip_stats[create_stat(remote_ip)];
     } else {
-        session = map_get(interaction_map, remote_ip);
+        session = &ip_stats[id];
     }
 
     // if there are already enough packets for current session
@@ -63,11 +80,10 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
         session->packet_len_deviation = count_deviation_generic(session->packet_sizes, PACKETS_AMOUNT);
         session->entropy_deviation = count_deviation_generic(session->packet_entropy, PACKETS_AMOUNT);
 
-        appendCSV(session);
-        log(session);
+        appendCSV("data.csv", session);
+        logCSV(session);
 
-        map_remove(interaction_map, remote_ip);
-        session = (FlowStat *)malloc(sizeof(FlowStat));
+        session = &ip_stats[create_stat(remote_ip)];
     }
 
     // detecting ip protos
@@ -112,18 +128,11 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     // total flow entropy:
     for (size_t i = 0; i < header->len; ++i) {
         session->empty_bits += 8 - bit_count_table[packet[i]];
-        fsession->filled_bits += bit_count_table[packet[i]];
+        session->filled_bits += bit_count_table[packet[i]];
     }
-
-    // incerting all changed data:
-    map_insert(interaction_map, remote_ip, (void *)&session);
 }
 
-void *listen_on_device(void *args) {
-    struct thread_args *thread_data = (struct thread_args *)args;
-    const char *device_name = (char *)thread_data->interface;
-    const char *client_ip = (char *)thread_data->client_ip;
-
+void *listen_on_device() {
     char filter_exp[50];
     char errbuf[PCAP_ERRBUF_SIZE];
 
@@ -131,9 +140,9 @@ void *listen_on_device(void *args) {
     snprintf(filter_exp, sizeof(filter_exp), "host %s", client_ip);
 
     // opening interface to capture
-    pcap_t *handle = pcap_open_live(device_name, BUFSIZ, 1, 1000, errbuf);
+    pcap_t *handle = pcap_open_live(INTERFACE, BUFSIZ, 1, 1000, errbuf);
     if (handle == NULL) {
-        fprintf(stderr, "Could not open device %s: %sn", device_name, errbuf);
+        fprintf(stderr, "Could not open device %s: %sn", INTERFACE, errbuf);
         return NULL;
     }
 
@@ -148,7 +157,7 @@ void *listen_on_device(void *args) {
         return NULL;
     }
 
-    printf("Listening on device: %s\n", device_name);
+    printf("Listening on device: %s\n", INTERFACE);
     pcap_loop(handle, 100, packet_handler, NULL);
     pcap_close(handle);
 
@@ -161,11 +170,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    struct thread_args args;
-    args.interface = INTERFACE;
-    args.client_ip = argv[1];
+    client_ip = argv[1];
 
-    listen_on_device((void *)&args);
+    listen_on_device();
 
     return 0;
 }
