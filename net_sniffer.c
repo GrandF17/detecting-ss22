@@ -27,8 +27,6 @@ struct thread_args {
     const char *client_ip;
 };
 
-char *client_ip;
-
 // =========================================
 // variables we will write down to csv file:
 size_t min_packet_size;
@@ -77,8 +75,8 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     printf("Destination IP: %s\n", dst_ip);
     // printf("From: %s; to: %s\n", inet_ntoa(ip_header->ip_src), inet_ntoa(ip_header->ip_dst));
 
-    tls_lable = has_tls_lable(header, packet);
-    ssh_lable = has_ssh_lable(header, packet);
+    if(has_tls_lable(header, packet)) tls_lable = true;
+    if(has_ssh_lable(header, packet)) ssh_lable = true;
     
     // packet len deviation:
     packet_sizes[packet_count] = header->len;
@@ -141,7 +139,7 @@ void *listen_on_device(void* args) {
     /*while(1)*/ {
         // listen for 10 packets:
         printf("Listening on device: %s\n", device_name);
-        pcap_loop(handle, PACKETS_AMOUNT, packet_handler, NULL);
+        pcap_loop(handle, 20, packet_handler, NULL);
 
         // counting entropy:
         entropy = count_bin_entropy(empty_bits, filled_bits);
