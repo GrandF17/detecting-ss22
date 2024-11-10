@@ -14,6 +14,10 @@ int appendCSV(const char* file_name, const FlowStat* data) {
         return 1;
     }
 
+    fprintf(file, "%.4f, ", data->total_time);
+    fprintf(file, "%.4f, ", data->average_waiting_time);
+    fprintf(file, "%ld, ", data->client_pckt_amount);
+    fprintf(file, "%ld, ", data->server_pckt_amount);
     fprintf(file, "%ld, ", data->min_packet_size);
     fprintf(file, "%ld, ", data->max_packet_size);
     fprintf(file, "%.4f, ", data->packet_len_deviation);
@@ -33,6 +37,10 @@ int appendCSV(const char* file_name, const FlowStat* data) {
 void logCSV(const FlowStat* data) {
     printf("%s, ", data->rec_ip);
 
+    printf("%.4f, ", data->total_time);
+    printf("%.4f, ", data->average_waiting_time);
+    printf("%ld, ", data->client_pckt_amount);
+    printf("%ld, ", data->server_pckt_amount);
     printf("%ld, ", data->min_packet_size);
     printf("%ld, ", data->max_packet_size);
     printf("%.4f, ", data->packet_len_deviation);
@@ -43,7 +51,7 @@ void logCSV(const FlowStat* data) {
     printf("%d, ", (uint8_t)data->sctp_lable);
     printf("%d, ", (uint8_t)data->tls_lable);
     printf("%d, ", (uint8_t)data->ssh_lable);
-    printf("1\n");  // 1 --> ss22, 0 --> other
+    printf("0\n");  // 1 --> ss22, 0 --> other
 }
 
 #endif

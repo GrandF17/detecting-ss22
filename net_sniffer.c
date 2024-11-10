@@ -10,8 +10,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stddef.h>
+#include <time.h>
+
+// =========================
 
 #include "./modules/constants.h"
+#include "./modules/dynamic_array.c"
 
 // =========================
 
@@ -24,35 +29,7 @@
 // =========================
 
 const char *client_ip;
-
-FlowStat ip_stats[MAX_IP_COUNT];
-int ip_count = 0;
-
-int get_stat_idx(const char *ip_address) {
-    for (int i = 0; i < ip_count; ++i) {
-        if (strcmp(ip_stats[i].rec_ip, ip_address) == 0) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-int create_stat(const char *ip_address) {
-    int ip_id = get_stat_idx(ip_address);
-    if (ip_id != -1) {
-        memset(&ip_stats[ip_id], 0, sizeof(FlowStat));
-        return ip_id;
-    }
-
-    // if ip was not found --> add new one
-    if (ip_count < MAX_IP_COUNT) {
-        strcpy(ip_stats[ip_count].rec_ip, ip_address);
-        return ip_count++;
-    }
-
-    return -1;
-}
+FlowStatArray ip_stats;
 
 //////////////////////////////
 
@@ -65,13 +42,29 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     inet_ntop(AF_INET, &(ip_header->ip_dst), dst_ip, INET_ADDRSTRLEN);
 
     const char *remote_ip = strcmp(src_ip, client_ip) == 0 ? dst_ip : src_ip;
-    int id = get_stat_idx(remote_ip);
     FlowStat *session;
 
-    if (id == -1) {
-        session = &ip_stats[create_stat(remote_ip)];
+    int idx = get_stat_idx(&ip_stats, remote_ip);
+    if (idx != -1) {
+        session = &ip_stats.array[idx];
     } else {
-        session = &ip_stats[id];
+        session = &ip_stats.array[create_stat(&ip_stats, remote_ip)];
+    }
+    
+    // client packets amount:
+    if(strcmp(src_ip, client_ip) == 0) {
+        ++session->client_pckt_amount;
+    }else {
+        ++session->server_pckt_amount;
+    }
+    // server packets amount:
+
+    // time
+    if(session->start == 0) {
+        struct timespec time;
+        clock_gettime(CLOCK_MONOTONIC, &time);
+
+        session->start = time.tv_sec;
     }
 
     // if there are already enough packets for current session
@@ -81,10 +74,17 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
         session->entropy_deviation = count_deviation_generic(session->packet_entropy, PACKETS_AMOUNT);
         session->entropy = count_bin_entropy(session->empty_bits, session->filled_bits);
 
+        struct timespec time;
+        clock_gettime(CLOCK_MONOTONIC, &time);
+        session->end = time.tv_sec;
+
+        session->total_time = session->end - session->start;
+        session->average_waiting_time = session->total_time / session->packet_count;
+
         appendCSV("data.csv", session);
         logCSV(session);
 
-        session = &ip_stats[create_stat(remote_ip)];
+        session = &ip_stats.array[create_stat(&ip_stats, remote_ip)];
     }
 
     // detecting ip protos
@@ -172,8 +172,10 @@ int main(int argc, char *argv[]) {
     }
 
     client_ip = argv[1];
+    init_flow_stat_array(&ip_stats, 10);
 
     listen_on_device();
 
+    free_flow_stat_array(&ip_stats);
     return 0;
 }

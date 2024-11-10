@@ -13,6 +13,7 @@
     "inet.h": "c",
     "pthread.h": "c",
     "cstdint": "c",
-    "compare": "c"
+    "compare": "c",
+    "unistd.h": "c"
   }
 }
