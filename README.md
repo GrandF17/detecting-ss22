@@ -2,7 +2,7 @@
 
 ## To compile:
 ```bash
-gcc net_sniffer.c -o sniffer -lpcap -lm -pthread
+gcc net_sniffer.c -o sniffer -lpcap -lm
 ```
 
 ## To run:
