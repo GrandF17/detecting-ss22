@@ -58,8 +58,8 @@ typedef struct {
     SizeTArray packet_sizes;
 
     // time
-    double start;
-    double last_upd;
+    size_t start;
+    size_t last_upd;
 } FlowStat;
 
 typedef struct {

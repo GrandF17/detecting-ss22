@@ -5,7 +5,7 @@
 
 #include "../../constants.h"
 
-void init_size_t_array(SizeTArray *array, size_t initial_capacity);
+int init_size_t_array(SizeTArray *array, size_t initial_capacity);
 void free_size_t_array(SizeTArray *array);
 int push_back_size_t(SizeTArray *array, size_t val);
 

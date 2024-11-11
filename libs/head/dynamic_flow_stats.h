@@ -5,7 +5,7 @@
 
 #include "../../constants.h"
 
-void init_flow_stat_array(FlowStatArray *array, size_t initial_capacity);
+int init_flow_stat_array(FlowStatArray *array, size_t initial_capacity);
 void free_flow_stat_array(FlowStatArray *array);
 int get_stat_idx(FlowStatArray *array, const char *ip_address);
 int create_stat(FlowStatArray *array, const char *ip_address);

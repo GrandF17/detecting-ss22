@@ -43,34 +43,30 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
 
     // detecting interaction ip
     const char *remote_ip = strcmp(src_ip, client_ip) == 0 ? dst_ip : src_ip;
-    printf("remote_ip: %s\n", remote_ip);
 
     // time
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
 
-    // // run through all written ips and checking last update time
-    // for (size_t i = 0; i < ip_stats.count; ++i) {
-    //     // printf("Last upd: %.4f, now: %.4ld\n", ip_stats.array[i].last_upd, now.tv_sec);
-    //     if(ip_stats.array[i].start != 0 && ip_stats.array[i].last_upd + 5 /** seconds */ < now.tv_sec) {
-    //         // set last
-    //         finalize_flow(&ip_stats.array[i]);
-    //         create_stat(&ip_stats, ip_stats.array[i].rec_ip);
-    //     }
-    // }
-
     FlowStat *session;
 
     // get stats for current remote_ip
     int idx = get_stat_idx(&ip_stats, remote_ip);
+    printf("Getting idx for %s: %d\n", remote_ip, idx);
     if (idx != -1) {
         session = &ip_stats.array[idx];
     } else {
-        session = &ip_stats.array[create_stat(&ip_stats, remote_ip)];
+        int newIdx = create_stat(&ip_stats, remote_ip);
+        if(newIdx == -1) {
+            printf("SHIIIIT!!!\n");
+            return;
+        }
+        // printf("newIdx for %s: %d\n", remote_ip, newIdx);
+        session = &ip_stats.array[newIdx];
     }
 
     if(session->start != 0 && session->last_upd + 5 /** seconds */ < now.tv_sec) {
-        printf("finalizing for %s\n", remote_ip);
+        printf("finalizing for remote_ip %s\n", remote_ip);
         finalize_flow(session);
         create_stat(&ip_stats, session->rec_ip);
     }
