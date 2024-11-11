@@ -28,4 +28,4 @@ tls_lable                 - just makes TRUE if met some standart lables of TLS c
 ssh_lable                 - just makes TRUE if met some standart lables of SSH conncetion (too simple check)
 ```
 
-### Now sesion between two current IPs is divided by 5 seconds delay!!!
+### Now sesions between two current IPs are divided by 5 seconds delay!!!
