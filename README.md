@@ -28,4 +28,4 @@ tls_lable                 - just makes TRUE if met some standart lables of TLS c
 ssh_lable                 - just makes TRUE if met some standart lables of SSH conncetion (too simple check)
 ```
 
-### For now it is only 10 packets per session!!!
+### Now sesion between two current IPs is divided by 5 seconds delay!!!
