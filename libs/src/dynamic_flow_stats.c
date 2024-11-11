@@ -29,7 +29,6 @@ void free_flow_stat_array(FlowStatArray *array) {
 
 int get_stat_idx(FlowStatArray *array, const char *ip_address) {
     for (size_t i = 0; i < array->count; ++i) {
-        printf("Comparing %s and %s\n", array->array[i].rec_ip, ip_address);
         if (strcmp(array->array[i].rec_ip, ip_address) == 0) {
             return (int)i;
         }
@@ -39,7 +38,6 @@ int get_stat_idx(FlowStatArray *array, const char *ip_address) {
 
 int create_stat(FlowStatArray *array, const char *ip_address) {
     int ip_id = get_stat_idx(array, ip_address);
-    printf("ip_id %d for %s\n", ip_id, ip_address);
     if (ip_id != -1) {
         // free mem space
         free_double_array(&array->array[ip_id].packet_entropy);
@@ -77,7 +75,6 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         size_t new_capacity = array->capacity * 2;
         FlowStat *new_array = (FlowStat *)realloc(array->array, new_capacity * sizeof(FlowStat));
         if (new_array == NULL) {
-            printf("Fault in create_stat\n");
             return -1;
         }
         array->array = new_array;

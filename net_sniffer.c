@@ -52,7 +52,6 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
 
     // get stats for current remote_ip
     int idx = get_stat_idx(&ip_stats, remote_ip);
-    printf("Getting idx for %s: %d\n", remote_ip, idx);
     if (idx != -1) {
         session = &ip_stats.array[idx];
     } else {
@@ -61,7 +60,6 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
             printf("SHIIIIT!!!\n");
             return;
         }
-        // printf("newIdx for %s: %d\n", remote_ip, newIdx);
         session = &ip_stats.array[newIdx];
     }
 
