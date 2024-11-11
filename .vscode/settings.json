@@ -18,6 +18,15 @@
     "dynamic_flow_stats.h": "c",
     "dynamic_double.h": "c",
     "dyncamic_size_t.h": "c",
-    "dynamic_size_t.h": "c"
+    "dynamic_size_t.h": "c",
+    "bitset": "c",
+    "chrono": "c",
+    "format": "c",
+    "map": "c",
+    "unordered_map": "c",
+    "vector": "c",
+    "__bit_reference": "c",
+    "__split_buffer": "c",
+    "string": "c"
   }
 }

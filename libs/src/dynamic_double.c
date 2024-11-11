@@ -1,13 +1,18 @@
 #ifndef SNIFFER_LIBS_SRC_DYNAMIC_DOUBLE_C_INCLUDED
 #define SNIFFER_LIBS_SRC_DYNAMIC_DOUBLE_C_INCLUDED
 
+#include "../head/dynamic_double.h"
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../head/dynamic_double.h"
-
 void init_double_array(DoubleArray *array, size_t initial_capacity) {
     array->array = (double *)malloc(initial_capacity * sizeof(double));
+    if (array->array == NULL) {
+        ptinf("Fault in init_double_array\n");
+        return -1;
+    }
     array->count = 0;
     array->capacity = initial_capacity;
 }
@@ -24,6 +29,7 @@ int push_back_double(DoubleArray *array, double val) {
         size_t new_capacity = array->capacity * 2;
         double *new_array = (double *)realloc(array->array, new_capacity * sizeof(double));
         if (new_array == NULL) {
+            ptinf("Fault in push_back_double\n");
             return -1;
         }
         array->array = new_array;
