@@ -14,78 +14,78 @@
 #include <time.h>
 
 // =========================
-
-#include "./modules/constants.h"
-#include "./modules/dynamic_array.c"
+#include "./constants.h"
 
 // =========================
+#include "./libs/head/dynamic_flow_stats.h"
+#include "./libs/head/dynamic_double.h"
+#include "./libs/head/dynamic_size_t.h"
 
-#include "./modules/csv.c"
+// =========================
+#include "./modules/finalize.c"
 #include "./modules/deviation.c"
 #include "./modules/entropy.c"
 #include "./modules/ssh_lable.c"
 #include "./modules/tls_lable.c"
-
-// =========================
+#include "./modules/csv.c"
 
 const char *client_ip;
 FlowStatArray ip_stats;
 
-//////////////////////////////
-
 void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const uint8_t *packet) {
     struct ip *ip_header = (struct ip *)(packet + ETHERNET_HEADER_LEN);  // Ethernet header is 14 bytes
-    int ip_header_length = ip_header->ip_hl * 4;
+
     char src_ip[INET_ADDRSTRLEN];
     char dst_ip[INET_ADDRSTRLEN];
+
     inet_ntop(AF_INET, &(ip_header->ip_src), src_ip, INET_ADDRSTRLEN);
     inet_ntop(AF_INET, &(ip_header->ip_dst), dst_ip, INET_ADDRSTRLEN);
 
+    // detecting interaction ip
     const char *remote_ip = strcmp(src_ip, client_ip) == 0 ? dst_ip : src_ip;
+    printf("remote_ip: %s\n", remote_ip);
+
+    // time
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+
+    // // run through all written ips and checking last update time
+    // for (size_t i = 0; i < ip_stats.count; ++i) {
+    //     // printf("Last upd: %.4f, now: %.4ld\n", ip_stats.array[i].last_upd, now.tv_sec);
+    //     if(ip_stats.array[i].start != 0 && ip_stats.array[i].last_upd + 5 /** seconds */ < now.tv_sec) {
+    //         // set last
+    //         finalize_flow(&ip_stats.array[i]);
+    //         create_stat(&ip_stats, ip_stats.array[i].rec_ip);
+    //     }
+    // }
+
     FlowStat *session;
 
+    // get stats for current remote_ip
     int idx = get_stat_idx(&ip_stats, remote_ip);
     if (idx != -1) {
         session = &ip_stats.array[idx];
     } else {
         session = &ip_stats.array[create_stat(&ip_stats, remote_ip)];
     }
-    
-    // client packets amount:
+
+    if(session->start != 0 && session->last_upd + 5 /** seconds */ < now.tv_sec) {
+        printf("finalizing for %s\n", remote_ip);
+        finalize_flow(session);
+        create_stat(&ip_stats, session->rec_ip);
+    }
+
+    // counting server/client packets passed to each other
     if(strcmp(src_ip, client_ip) == 0) {
         ++session->client_pckt_amount;
-    }else {
+    } else {
         ++session->server_pckt_amount;
     }
-    // server packets amount:
 
-    // time
     if(session->start == 0) {
-        struct timespec time;
-        clock_gettime(CLOCK_MONOTONIC, &time);
-
-        session->start = time.tv_sec;
+        session->start = now.tv_sec;
     }
-
-    // if there are already enough packets for current session
-    if (session->packet_count == PACKETS_AMOUNT - 1) {
-        // counting standart packet len deviation:
-        session->packet_len_deviation = count_deviation_generic(session->packet_sizes, PACKETS_AMOUNT);
-        session->entropy_deviation = count_deviation_generic(session->packet_entropy, PACKETS_AMOUNT);
-        session->entropy = count_bin_entropy(session->empty_bits, session->filled_bits);
-
-        struct timespec time;
-        clock_gettime(CLOCK_MONOTONIC, &time);
-        session->end = time.tv_sec;
-
-        session->total_time = session->end - session->start;
-        session->average_waiting_time = session->total_time / session->packet_count;
-
-        appendCSV("data.csv", session);
-        logCSV(session);
-
-        session = &ip_stats.array[create_stat(&ip_stats, remote_ip)];
-    }
+    session->last_upd = now.tv_sec;
 
     // detecting ip protos
     if (ip_header->ip_p == IPPROTO_TCP) {
@@ -105,10 +105,9 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     }
 
     // packet len deviation:
-    session->packet_sizes[session->packet_count] = header->len;
+    push_back_size_t(&session->packet_sizes, header->len);
     // entropy deviation:
-    session->packet_entropy[session->packet_count] = count_packet_entropy(packet, header->len);
-    ++session->packet_count;
+    push_back_double(&session->packet_entropy, count_packet_entropy(packet, header->len));
 
     // min packet len
     if (session->min_packet_size == 0) {

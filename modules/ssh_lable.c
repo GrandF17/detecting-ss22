@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "./constants.h"
+#include "../constants.h"
 
 // SSH signs
 #define SSH_PORT 22

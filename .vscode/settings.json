@@ -14,6 +14,10 @@
     "pthread.h": "c",
     "cstdint": "c",
     "compare": "c",
-    "unistd.h": "c"
+    "unistd.h": "c",
+    "dynamic_flow_stats.h": "c",
+    "dynamic_double.h": "c",
+    "dyncamic_size_t.h": "c",
+    "dynamic_size_t.h": "c"
   }
 }

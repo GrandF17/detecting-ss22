@@ -12,13 +12,13 @@ sudo ./sniffer <CLIENT_IP>
 
 CSV file headers in canonical order:
 ```
-total_time              - total session time in ms
+total_time              - total session time in seconds
 average_waiting_time    - total_time / amount_of_packets
 client_pckt_amount      - amount of packets passed from client to server
 server_pckt_amount      - amount of packets passed from server to client
 min_packet_size
 max_packet_size
-packet_len_deviation    - standard deviation of packet lengths in a session
+packet_size_deviation    - standard deviation of packet lengths in a session
 entropy                 - entropy of total flow per session
 entropy_deviation       - standard deviation of packet entropy in a session
 udp_lable               - just makes TRUE if met UDP in IP proto

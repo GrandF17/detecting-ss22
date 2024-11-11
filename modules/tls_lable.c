@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 
-#include "./constants.h"
+#include "../constants.h"
 
 // TLS msg types
 #define TLS_CHANGE_CIPHER_SPEC 0x14

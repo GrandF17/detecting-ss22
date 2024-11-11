@@ -5,11 +5,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define MAX_IP_COUNT 100
-
-#define ETHERNET_HEADER_LEN 14
+#define ETHERNET_HEADER_LEN 14   // Ethernet header is 14 bytes
 #define PACKETS_AMOUNT 10
-#define INTERFACE "ens33"
+#define INTERFACE "ens33"       /// default interface on Ubuntu 24 to listen
+
+typedef struct {
+    double *array;
+    size_t count;
+    size_t capacity;
+} DoubleArray;
+
+typedef struct {
+    size_t *array;
+    size_t count;
+    size_t capacity;
+} SizeTArray;
 
 typedef struct {
     char rec_ip[INET_ADDRSTRLEN];
@@ -22,33 +32,34 @@ typedef struct {
 
     size_t min_packet_size;
     size_t max_packet_size;
-    double packet_len_deviation;
+    double packet_size_deviation;
     double entropy;
     double entropy_deviation;
-    // most representative:
+
+    // using only port and basic points recognition:
+    // more representative:
     bool udp_lable;
     bool tcp_lable;
     bool sctp_lable;
-    // using only port and basic points recognition:
+    // less representative:
+    // false positives are likely
     bool tls_lable;
     bool ssh_lable;
 
     // ==================
     // service variables:
 
-    size_t packet_count;
-
     // entropy
     size_t empty_bits;
     size_t filled_bits;
-    double packet_entropy[PACKETS_AMOUNT];
+    DoubleArray packet_entropy;
 
-    // packet_len_deviation
-    size_t packet_sizes[PACKETS_AMOUNT];
+    // packet_size_deviation
+    SizeTArray packet_sizes;
 
     // time
     double start;
-    double end;
+    double last_upd;
 } FlowStat;
 
 typedef struct {

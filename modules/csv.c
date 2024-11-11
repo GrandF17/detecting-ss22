@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "./constants.h"
+#include "../constants.h"
 
 int appendCSV(const char* file_name, const FlowStat* data) {
     FILE* file = fopen(file_name, "a");
@@ -20,7 +20,7 @@ int appendCSV(const char* file_name, const FlowStat* data) {
     fprintf(file, "%ld, ", data->server_pckt_amount);
     fprintf(file, "%ld, ", data->min_packet_size);
     fprintf(file, "%ld, ", data->max_packet_size);
-    fprintf(file, "%.4f, ", data->packet_len_deviation);
+    fprintf(file, "%.4f, ", data->packet_size_deviation);
     fprintf(file, "%.4f, ", data->entropy);
     fprintf(file, "%.4f, ", data->entropy_deviation);
     fprintf(file, "%d, ", (uint8_t)data->udp_lable);
@@ -43,7 +43,7 @@ void logCSV(const FlowStat* data) {
     printf("%ld, ", data->server_pckt_amount);
     printf("%ld, ", data->min_packet_size);
     printf("%ld, ", data->max_packet_size);
-    printf("%.4f, ", data->packet_len_deviation);
+    printf("%.4f, ", data->packet_size_deviation);
     printf("%.4f, ", data->entropy);
     printf("%.4f, ", data->entropy_deviation);
     printf("%d, ", (uint8_t)data->udp_lable);

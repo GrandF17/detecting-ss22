@@ -46,12 +46,12 @@
 // entropy = count_bin_entropy(empty_bits, filled_bits);
 
 // // counting standart packet len deviation:
-// packet_len_deviation = count_deviation_generic(packet_sizes, PACKETS_AMOUNT);
+// packet_size_deviation = count_deviation_generic(packet_sizes, PACKETS_AMOUNT);
 // entropy_deviation = count_deviation_generic(packet_entropy, PACKETS_AMOUNT);
 
 // printf("Minimum Packet Size: %zu bytes\n", min_packet_size);
 // printf("Maximum Packet Size: %zu bytes\n", max_packet_size);
-// printf("Packet Size Standard Deviation: %.4f bytes\n", packet_len_deviation);
+// printf("Packet Size Standard Deviation: %.4f bytes\n", packet_size_deviation);
 // printf("Packet Entropy: %.4f\n", entropy);
 // printf("Packet Entropy Deviation: %.4f\n", entropy_deviation);
 
