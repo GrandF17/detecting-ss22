@@ -44,13 +44,32 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         // free mem space
         free_double_array(&array->array[ip_id].packet_entropy);
         free_size_t_array(&array->array[ip_id].packet_sizes);
-        memset(&array->array[ip_id], 0, sizeof(FlowStat));
+
+        // memset(&array->array[ip_id], 0, sizeof(FlowStat));
+        array->array[ip_id].average_waiting_time = 0;
+        array->array[ip_id].total_time = 0;
+        array->array[ip_id].client_pckt_amount = 0;
+        array->array[ip_id].server_pckt_amount = 0;
+        array->array[ip_id].min_packet_size = 0;
+        array->array[ip_id].max_packet_size = 0;
+        array->array[ip_id].packet_size_deviation = 0;
+        array->array[ip_id].entropy = 0;
+        array->array[ip_id].entropy_deviation = 0;
+        array->array[ip_id].udp_lable = false;
+        array->array[ip_id].tcp_lable = false;
+        array->array[ip_id].sctp_lable = false;
+        array->array[ip_id].tls_lable = false;
+        array->array[ip_id].ssh_lable = false;
+        array->array[ip_id].empty_bits = 0;
+        array->array[ip_id].filled_bits = 0;
+        array->array[ip_id].start = 0;
+        array->array[ip_id].last_upd = 0;
 
         // allocate new mem space
-        strcpy(array->array[ip_id].rec_ip, ip_address);
+        // strcpy(array->array[ip_id].rec_ip, ip_address);
         init_double_array(&array->array[ip_id].packet_entropy, 10);
         init_size_t_array(&array->array[ip_id].packet_sizes, 10);
-        
+
         return ip_id;
     }
 
