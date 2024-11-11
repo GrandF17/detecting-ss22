@@ -2,7 +2,7 @@
 
 ## To compile:
 ```bash
-gcc net_sniffer.c -o sniffer -lpcap -lm
+gcc net_sniffer.c ./libs/src/dynamic_double.c ./libs/src/dynamic_size_t.c ./libs/src/dynamic_flow_stats.c -o sniffer -lpcap -lm
 ```
 
 ## To run:
