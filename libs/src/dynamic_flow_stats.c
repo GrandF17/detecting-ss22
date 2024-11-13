@@ -43,7 +43,16 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         free_double_array(&array->array[ip_id].packet_entropy);
         free_size_t_array(&array->array[ip_id].packet_sizes);
 
-        // memset(&array->array[ip_id], 0, sizeof(FlowStat));
+        // instead of 'memset(&array->array[ip_id], 0, sizeof(FlowStat));'
+
+        // first pct stats:
+        array->array[ip_id].first_pct_stat.entropy = 0.0;
+        array->array[ip_id].first_pct_stat.is_http_or_tls = false;
+        array->array[ip_id].first_pct_stat.correct_range_six = false;
+        array->array[ip_id].first_pct_stat.correct_range_half = false;
+        array->array[ip_id].first_pct_stat.correct_range_sequence = false;
+
+        // other metrics:
         array->array[ip_id].average_waiting_time = 0;
         array->array[ip_id].total_time = 0;
         array->array[ip_id].client_pckt_amount = 0;
@@ -53,15 +62,22 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         array->array[ip_id].packet_size_deviation = 0;
         array->array[ip_id].entropy = 0;
         array->array[ip_id].entropy_deviation = 0;
+
+        // time metrics:
+        array->array[ip_id].start = 0;
+        array->array[ip_id].last_upd = 0;
+
+        // lables:
         array->array[ip_id].udp_lable = false;
         array->array[ip_id].tcp_lable = false;
         array->array[ip_id].sctp_lable = false;
+        array->array[ip_id].http_lable = false;
         array->array[ip_id].tls_lable = false;
         array->array[ip_id].ssh_lable = false;
+
+        // srevice metrics:
         array->array[ip_id].empty_bits = 0;
         array->array[ip_id].filled_bits = 0;
-        array->array[ip_id].start = 0;
-        array->array[ip_id].last_upd = 0;
 
         // allocate new mem space
         // strcpy(array->array[ip_id].rec_ip, ip_address);

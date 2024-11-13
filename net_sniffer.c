@@ -22,15 +22,25 @@
 #include "./libs/head/dynamic_size_t.h"
 
 // =========================
+#include "./modules/ranges_counter.c"
 #include "./modules/finalize.c"
 #include "./modules/deviation.c"
 #include "./modules/entropy.c"
+#include "./modules/http_lable.c"
 #include "./modules/ssh_lable.c"
 #include "./modules/tls_lable.c"
 #include "./modules/csv.c"
 
 const char *client_ip;
 FlowStatArray ip_stats;
+
+bool is_first_packet_empty(const FirstPacket *packet) {
+    return packet->entropy == 0.0 &&
+           !packet->correct_range_six &&
+           !packet->correct_range_half &&
+           !packet->correct_range_sequence &&
+           !packet->is_http_or_tls;
+}
 
 void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const uint8_t *packet) {
     struct ip *ip_header = (struct ip *)(packet + ETHERNET_HEADER_LEN);  // Ethernet header is 14 bytes
@@ -57,7 +67,7 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     } else {
         int newIdx = create_stat(&ip_stats, remote_ip);
         if(newIdx == -1) {
-            printf("SHIIIIT!!!\n");
+            printf("ERROR (create_stat)!!!\n");
             return;
         }
         session = &ip_stats.array[newIdx];
@@ -84,6 +94,15 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     // detecting ip protos
     if (ip_header->ip_p == IPPROTO_TCP) {
         session->tcp_lable = true;
+
+        // first tcp packet payload:
+        if(is_first_packet_empty(&session->first_pct_stat)) {
+            session->first_pct_stat.entropy = count_packet_entropy(packet, header->len);
+            session->first_pct_stat.correct_range_six = check_first_six_bytes(packet, header->len);
+            session->first_pct_stat.correct_range_half = check_more_than_50_percent(packet, header->len);
+            session->first_pct_stat.correct_range_sequence = check_more_than_20_contiguous(packet, header->len);
+            session->first_pct_stat.is_http_or_tls = has_tls_lable(header, packet) || has_http_lable(header, packet); 
+        }
     } else if (ip_header->ip_p == IPPROTO_UDP) {
         session->udp_lable = true;
     } else if (ip_header->ip_p == IPPROTO_SCTP) {
@@ -96,6 +115,10 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     }
     if (has_ssh_lable(header, packet)) {
         session->ssh_lable = true;
+    }
+    if (has_http_lable(header, packet)) {
+        printf("HTTP for %s\n", remote_ip);
+        session->http_lable = true;
     }
 
     // packet len deviation:

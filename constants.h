@@ -22,9 +22,19 @@ typedef struct {
 } SizeTArray;
 
 typedef struct {
+    double entropy;
+    bool correct_range_six;         // first n > 6 bytes are in range [0x20, 0x7e]
+    bool correct_range_half;        // more than a half of bytes is in range [0x20, 0x7e]
+    bool correct_range_sequence;    // more than 20 bytes are in range [0x20, 0x7e]
+    bool is_http_or_tls;
+} FirstPacket;
+
+typedef struct {
     char rec_ip[INET_ADDRSTRLEN];
     // =========================================
     // variables we will write down to csv file:
+    FirstPacket first_pct_stat;
+    
     double average_waiting_time;
     double total_time;
     size_t client_pckt_amount;
@@ -43,6 +53,7 @@ typedef struct {
     bool sctp_lable;
     // less representative:
     // false positives are likely
+    bool http_lable;
     bool tls_lable;
     bool ssh_lable;
 
