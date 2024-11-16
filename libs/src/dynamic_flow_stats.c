@@ -52,20 +52,21 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         array->array[ip_id].first_pct_stat.range_of_half = false;
         array->array[ip_id].first_pct_stat.range_seq = false;
 
-        // other metrics:
-        array->array[ip_id].avg_waiting_time = 0;
-        array->array[ip_id].total_time = 0;
-        array->array[ip_id].client_pckt_amount = 0;
-        array->array[ip_id].server_pckt_amount = 0;
-        array->array[ip_id].min_pckt_size = 0;
-        array->array[ip_id].max_pckt_size = 0;
-        array->array[ip_id].std_pckt_size = 0;
         array->array[ip_id].entropy = 0;
-        array->array[ip_id].std_entropy = 0;
 
-        // time metrics:
-        array->array[ip_id].start = 0;
-        array->array[ip_id].last_upd = 0;
+        array->array[ip_id].std_pckt_size = 0;
+        array->array[ip_id].q1_pckt_size = 0;
+        array->array[ip_id].q2_pckt_size = 0;
+        array->array[ip_id].q3_pckt_size = 0;
+        array->array[ip_id].iqr_pckt_size = 0;
+        array->array[ip_id].pckt_size_outliers = 0;
+
+        array->array[ip_id].std_entropy = 0;
+        array->array[ip_id].q1_entropy = 0;
+        array->array[ip_id].q2_entropy = 0;
+        array->array[ip_id].q3_entropy = 0;
+        array->array[ip_id].iqr_entropy = 0;
+        array->array[ip_id].entropy_outliers = 0;
 
         // lables:
         array->array[ip_id].udp_lable = false;
@@ -75,9 +76,22 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         array->array[ip_id].tls_lable = false;
         array->array[ip_id].ssh_lable = false;
 
-        // srevice metrics:
+        // other metrics:
+        array->array[ip_id].avg_waiting_time = 0;
+        array->array[ip_id].total_time = 0;
+        array->array[ip_id].client_pckt_amount = 0;
+        array->array[ip_id].server_pckt_amount = 0;
+        array->array[ip_id].min_pckt_size = 0;
+        array->array[ip_id].max_pckt_size = 0;
+        array->array[ip_id].keep_alive_pckt_amount = 0;
+
+        // total flow entropy metrics:
         array->array[ip_id].empty_bits = 0;
         array->array[ip_id].filled_bits = 0;
+
+        // time metrics:
+        array->array[ip_id].start = 0;
+        array->array[ip_id].last_upd = 0;
 
         // allocate new mem space
         // strcpy(array->array[ip_id].rec_ip, ip_address);

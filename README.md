@@ -15,9 +15,9 @@ CSV file headers in canonical order:
 # first TCP packet metrics
 # according to chinese <a href="https://gfw.report/publications/usenixsecurity23/en/#6-understanding-the-blocking-strategies" target="_blank">researches</a>
 entropy                 - 1-st TCP packet entropy 
-range_of_six            - TRUE if first 6 bytes are in range [0x20, 0x7e]           (readable) 
-range_of_half           - TRUE if half of bytes is in range [0x20, 0x7e]            (readable) 
-range_seq               - TRUE if the are 20 bytes in a row in range [0x20, 0x7e]   (readable) 
+range_of_six            - TRUE if first 6 bytes are in range            [0x20, 0x7e] (readable) 
+range_of_half           - TRUE if half of bytes is in range             [0x20, 0x7e] (readable) 
+range_seq               - TRUE if the are 20 bytes in a row in range    [0x20, 0x7e] (readable) 
 is_http_or_tls          - TRUE if sniffer found TLS/HTTP proto mertics 
 
 # statistical study of the session on 
@@ -25,22 +25,26 @@ is_http_or_tls          - TRUE if sniffer found TLS/HTTP proto mertics
 # for entropy, size rows
 entropy                 - entropy of total flow per session
 std_pckt_size           - standard deviation of packet lengths in a session
-median_pckt_size        - # TODO
 q1_pckt_size            - # TODO
+q2_pckt_size            - # TODO
 q3_pckt_size            - # TODO
 iqr_pckt_size           - # TODO
-pckt_size_outliers      - # TODO
+pckt_size_outliers_lb   - # TODO
+pckt_size_outliers_ub   - # TODO
+
 std_entropy             - standard deviation of packet entropy in a session
-median_entropy          - # TODO
 q1_entropy              - # TODO
+q2_entropy              - # TODO
 q3_entropy              - # TODO
 iqr_entropy             - # TODO
-entropy_outliers        - # TODO
+entropy_outliers_lb     - # TODO
+entropy_outliers_ub     - # TODO
 
 # some IP and 6 Layer OSI protos:
 udp_lable               - TRUE if met UDP   in IP proto
 tcp_lable               - TRUE if met TCP   in IP proto
 sctp_lable              - TRUE if met SCTP  in IP proto
+http_lable              - TRUE if met some standart lables of HTTP conncetion (simple check)
 tls_lable               - TRUE if met some standart lables of TLS conncetion (simple check)
 ssh_lable               - TRUE if met some standart lables of SSH conncetion (simple check)
 

@@ -11,7 +11,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <stddef.h>
-#include <time.h>
 
 // =========================
 #include "./constants.h"
@@ -29,6 +28,8 @@
 #include "./modules/http_lable.c"
 #include "./modules/ssh_lable.c"
 #include "./modules/tls_lable.c"
+
+#include "./modules/time.c"
 #include "./modules/csv.c"
 
 const char *client_ip;
@@ -43,6 +44,13 @@ bool is_first_packet_empty(const FirstPacket *packet) {
 }
 
 void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const uint8_t *packet) {
+    struct ethernet_header *eth_hdr = (struct ethernet_header *)packet;
+
+    if (ntohs(eth_hdr->ethertype) == ARP_PROTOCOL) {
+        // printf("An ARP packet.\n");
+        return;
+    }
+
     struct ip *ip_header = (struct ip *)(packet + ETHERNET_HEADER_LEN);  // Ethernet header is 14 bytes
 
     char src_ip[INET_ADDRSTRLEN];
@@ -53,10 +61,6 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
 
     // detecting interaction ip
     const char *remote_ip = strcmp(src_ip, client_ip) == 0 ? dst_ip : src_ip;
-
-    // time
-    struct timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
 
     FlowStat *session;
 
@@ -73,8 +77,7 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
         session = &ip_stats.array[newIdx];
     }
 
-    if(session->start != 0 && session->last_upd + 5 /** seconds */ < now.tv_sec) {
-        printf("finalizing for remote_ip %s\n", remote_ip);
+    if(session->start != 0 && session->last_upd + 5 * 1000 /** seconds */ < milliseconds()) {
         finalize_flow(session);
         create_stat(&ip_stats, session->rec_ip);
     }
@@ -87,9 +90,9 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     }
 
     if(session->start == 0) {
-        session->start = now.tv_sec;
+        session->start = milliseconds();
     }
-    session->last_upd = now.tv_sec;
+    session->last_upd = milliseconds();
 
     // detecting ip protos
     if (ip_header->ip_p == IPPROTO_TCP) {
@@ -128,10 +131,15 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
 
     // min packet len
     if (session->min_pckt_size == 0) {
+        session->keep_alive_pckt_amount = 1;
         session->min_pckt_size = header->len;
     } else {
-        session->min_pckt_size =
-            session->min_pckt_size < header->len ? session->min_pckt_size : header->len;
+        if(header->len < session->min_pckt_size) {
+            session->keep_alive_pckt_amount = 1;
+            session->min_pckt_size = header->len;
+        } else if(header->len == session->min_pckt_size) {
+            ++session->keep_alive_pckt_amount;
+        }
     }
 
     // max packet len

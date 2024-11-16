@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-double count_deviation(size_t* array_of_tags, size_t tags_amount) {
+double deviation_size_t(size_t* array_of_tags, size_t tags_amount) {
     size_t sum = 0;
     for (size_t i = 0; i < tags_amount; ++i) {
         sum += array_of_tags[i];
@@ -21,7 +21,7 @@ double count_deviation(size_t* array_of_tags, size_t tags_amount) {
     return sqrt(variance_sum / tags_amount);
 }
 
-double count_deviation_double(double* array_of_tags, size_t tags_amount) {
+double deviation_double(double* array_of_tags, size_t tags_amount) {
     double sum = 0.0;
     for (size_t i = 0; i < tags_amount; ++i) {
         sum += array_of_tags[i];
@@ -37,10 +37,10 @@ double count_deviation_double(double* array_of_tags, size_t tags_amount) {
     return sqrt(variance_sum / tags_amount);
 }
 
-#define count_deviation_generic(arr, tags_amount) \
+#define deviation(arr, tags_amount) \
     _Generic((arr), \
-        size_t*: count_deviation, \
-        double*: count_deviation_double \
+        size_t*: deviation_size_t, \
+        double*: deviation_double \
     )(arr, tags_amount)
 
 #endif
