@@ -49,13 +49,13 @@ tls_lable               - TRUE if met some standart lables of TLS conncetion (si
 ssh_lable               - TRUE if met some standart lables of SSH conncetion (simple check)
 
 # other simple metrcis
-total_time              - total session time in seconds
+total_time              - total session time in milliseconds
 avg_waiting_time        - total_time / amount_of_packets
 client_pckt_amount      - amount of packets passed from client to server
 server_pckt_amount      - amount of packets passed from server to client
 min_pckt_size
 max_pckt_size
-keep_alive_pckt_amount  - amount of packets with min size (keep alive pcts) # TODO
+keep_alive_pckt_amount  - amount of packets with min size (keep alive pcts)
 ```
 
 ### Now sesions between two current IPs are divided by 5 seconds delay!!!
