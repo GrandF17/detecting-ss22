@@ -48,20 +48,20 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         // first pct stats:
         array->array[ip_id].first_pct_stat.entropy = 0.0;
         array->array[ip_id].first_pct_stat.is_http_or_tls = false;
-        array->array[ip_id].first_pct_stat.correct_range_six = false;
-        array->array[ip_id].first_pct_stat.correct_range_half = false;
-        array->array[ip_id].first_pct_stat.correct_range_sequence = false;
+        array->array[ip_id].first_pct_stat.range_of_six = false;
+        array->array[ip_id].first_pct_stat.range_of_half = false;
+        array->array[ip_id].first_pct_stat.range_seq = false;
 
         // other metrics:
-        array->array[ip_id].average_waiting_time = 0;
+        array->array[ip_id].avg_waiting_time = 0;
         array->array[ip_id].total_time = 0;
         array->array[ip_id].client_pckt_amount = 0;
         array->array[ip_id].server_pckt_amount = 0;
-        array->array[ip_id].min_packet_size = 0;
-        array->array[ip_id].max_packet_size = 0;
-        array->array[ip_id].packet_size_deviation = 0;
+        array->array[ip_id].min_pckt_size = 0;
+        array->array[ip_id].max_pckt_size = 0;
+        array->array[ip_id].std_pckt_size = 0;
         array->array[ip_id].entropy = 0;
-        array->array[ip_id].entropy_deviation = 0;
+        array->array[ip_id].std_entropy = 0;
 
         // time metrics:
         array->array[ip_id].start = 0;

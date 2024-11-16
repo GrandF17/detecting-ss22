@@ -36,9 +36,9 @@ FlowStatArray ip_stats;
 
 bool is_first_packet_empty(const FirstPacket *packet) {
     return packet->entropy == 0.0 &&
-           !packet->correct_range_six &&
-           !packet->correct_range_half &&
-           !packet->correct_range_sequence &&
+           !packet->range_of_six &&
+           !packet->range_of_half &&
+           !packet->range_seq &&
            !packet->is_http_or_tls;
 }
 
@@ -98,9 +98,9 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
         // first tcp packet payload:
         if(is_first_packet_empty(&session->first_pct_stat)) {
             session->first_pct_stat.entropy = count_packet_entropy(packet, header->len);
-            session->first_pct_stat.correct_range_six = check_first_six_bytes(packet, header->len);
-            session->first_pct_stat.correct_range_half = check_more_than_50_percent(packet, header->len);
-            session->first_pct_stat.correct_range_sequence = check_more_than_20_contiguous(packet, header->len);
+            session->first_pct_stat.range_of_six = check_first_six_bytes(packet, header->len);
+            session->first_pct_stat.range_of_half = check_more_than_50_percent(packet, header->len);
+            session->first_pct_stat.range_seq = check_more_than_20_contiguous(packet, header->len);
             session->first_pct_stat.is_http_or_tls = has_tls_lable(header, packet) || has_http_lable(header, packet); 
         }
     } else if (ip_header->ip_p == IPPROTO_UDP) {
@@ -127,19 +127,19 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     push_back_double(&session->packet_entropy, count_packet_entropy(packet, header->len));
 
     // min packet len
-    if (session->min_packet_size == 0) {
-        session->min_packet_size = header->len;
+    if (session->min_pckt_size == 0) {
+        session->min_pckt_size = header->len;
     } else {
-        session->min_packet_size =
-            session->min_packet_size < header->len ? session->min_packet_size : header->len;
+        session->min_pckt_size =
+            session->min_pckt_size < header->len ? session->min_pckt_size : header->len;
     }
 
     // max packet len
-    if (session->max_packet_size == 0) {
-        session->max_packet_size = header->len;
+    if (session->max_pckt_size == 0) {
+        session->max_pckt_size = header->len;
     } else {
-        session->max_packet_size =
-            session->max_packet_size > header->len ? session->max_packet_size : header->len;
+        session->max_pckt_size =
+            session->max_pckt_size > header->len ? session->max_pckt_size : header->len;
     }
 
     // total flow entropy:

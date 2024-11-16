@@ -23,9 +23,9 @@ typedef struct {
 
 typedef struct {
     double entropy;
-    bool correct_range_six;         // first n > 6 bytes are in range [0x20, 0x7e]
-    bool correct_range_half;        // more than a half of bytes is in range [0x20, 0x7e]
-    bool correct_range_sequence;    // more than 20 bytes are in range [0x20, 0x7e]
+    bool range_of_six;         // first n > 6 bytes are in range [0x20, 0x7e]
+    bool range_of_half;        // more than a half of bytes is in range [0x20, 0x7e]
+    bool range_seq;    // more than 20 bytes are in range [0x20, 0x7e]
     bool is_http_or_tls;
 } FirstPacket;
 
@@ -35,16 +35,16 @@ typedef struct {
     // variables we will write down to csv file:
     FirstPacket first_pct_stat;
     
-    double average_waiting_time;
+    double avg_waiting_time;
     double total_time;
     size_t client_pckt_amount;
     size_t server_pckt_amount;
 
-    size_t min_packet_size;
-    size_t max_packet_size;
-    double packet_size_deviation;
+    size_t min_pckt_size;
+    size_t max_pckt_size;
+    double std_pckt_size;
     double entropy;
-    double entropy_deviation;
+    double std_entropy;
 
     // using only port and basic points recognition:
     // more representative:
@@ -65,7 +65,7 @@ typedef struct {
     size_t filled_bits;
     DoubleArray packet_entropy;
 
-    // packet_size_deviation
+    // std_pckt_size
     SizeTArray packet_sizes;
 
     // time
