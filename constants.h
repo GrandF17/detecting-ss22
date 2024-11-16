@@ -62,14 +62,16 @@ typedef struct {
     size_t q2_pckt_size;
     size_t q3_pckt_size;
     size_t iqr_pckt_size;
-    double pckt_size_outliers;
+    size_t pckt_size_outliers_lb;
+    size_t pckt_size_outliers_ub;
 
     double std_entropy;
     double q1_entropy;
     double q2_entropy;
     double q3_entropy;
     double iqr_entropy;
-    double entropy_outliers;
+    size_t entropy_outliers_lb;
+    size_t entropy_outliers_ub;
 
     // using only port and basic points recognition:
     // more representative:
@@ -111,5 +113,24 @@ typedef struct {
     size_t count;
     size_t capacity;
 } FlowStatArray;
+
+
+// math statstics Structs:
+
+// Q1, Q2, Q3, IQR 
+typedef struct {
+    double Q1;
+    double Q2; // median
+    double Q3;
+    double IQR;
+} QuartileResultDouble;
+
+// Q1, Q2, Q3, IQR 
+typedef struct {
+    size_t Q1;
+    size_t Q2; // median
+    size_t Q3;
+    size_t IQR;
+} QuartileResultSizeT;
 
 #endif

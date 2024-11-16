@@ -8,12 +8,14 @@
 #include "../constants.h"
 
 #define FIRST_PCT "entropy, range_of_six, range_of_half, range_seq, is_http_or_tls"
-#define STATISTICS "entropy, std_pckt_size, std_entropy"
+#define ENTROPY "entropy"
+#define STAT_PCKT_SIZES "std_pckt_size, q1_pckt_size, q2_pckt_size, q3_pckt_size, iqr_pckt_size, pckt_size_outliers_lb, pckt_size_outliers_ub"
+#define STAT_ENTROPY "std_entropy, q1_entropy, q2_entropy, q3_entropy, iqr_entropy, entropy_outliers_lb, entropy_outliers_ub"
 #define PROTO_LABLES "udp_lable, tcp_lable, sctp_lable, http_lable, tls_lable, ssh_lable"
 #define OTHER_METRICS "total_time, avg_waiting_time, client_pckt_amount, server_pckt_amount, min_pckt_size, max_pckt_size, keep_alive_pckt_amount"
 #define IS_SS22 "is_ss22"
 
-#define CSV_HEAD FIRST_PCT ", " STATISTICS ", " PROTO_LABLES ", " OTHER_METRICS ", " IS_SS22 "\n"
+#define CSV_HEAD FIRST_PCT ", " ENTROPY ", " STAT_PCKT_SIZES ", " STAT_ENTROPY ", " PROTO_LABLES ", " OTHER_METRICS ", " IS_SS22 "\n"
 
 int is_file_empty_or_nonexistent(const char *filename) {
     FILE *file = fopen(filename, "r");
@@ -47,7 +49,20 @@ int appendCSV(const char* file_name, const FlowStat* data) {
     fprintf(file, "%.6f, ", data->entropy);
 
     fprintf(file, "%.6f, ", data->std_pckt_size);
+    fprintf(file, "%ld, ", data->q1_pckt_size);
+    fprintf(file, "%ld, ", data->q2_pckt_size);
+    fprintf(file, "%ld, ", data->q3_pckt_size);
+    fprintf(file, "%ld, ", data->iqr_pckt_size);
+    fprintf(file, "%ld, ", data->pckt_size_outliers_lb);
+    fprintf(file, "%ld, ", data->pckt_size_outliers_ub);
+
     fprintf(file, "%.6f, ", data->std_entropy);
+    fprintf(file, "%.6f, ", data->q1_entropy);
+    fprintf(file, "%.6f, ", data->q2_entropy);
+    fprintf(file, "%.6f, ", data->q3_entropy);
+    fprintf(file, "%.6f, ", data->iqr_entropy);
+    fprintf(file, "%ld, ", data->entropy_outliers_lb);
+    fprintf(file, "%ld, ", data->entropy_outliers_ub);
 
     // lables:
     fprintf(file, "%d, ", (uint8_t)(data->udp_lable));
@@ -84,7 +99,20 @@ void logCSV(const FlowStat* data) {
     printf("%.6f, ", data->entropy);
     
     printf("%.6f, ", data->std_pckt_size);
+    printf("%ld, ", data->q1_pckt_size);
+    printf("%ld, ", data->q2_pckt_size);
+    printf("%ld, ", data->q3_pckt_size);
+    printf("%ld, ", data->iqr_pckt_size);
+    printf("%ld, ", data->pckt_size_outliers_lb);
+    printf("%ld, ", data->pckt_size_outliers_ub);
+
     printf("%.6f, ", data->std_entropy);
+    printf("%.6f, ", data->q1_entropy);
+    printf("%.6f, ", data->q2_entropy);
+    printf("%.6f, ", data->q3_entropy);
+    printf("%.6f, ", data->iqr_entropy);
+    printf("%ld, ", data->entropy_outliers_lb);
+    printf("%ld, ", data->entropy_outliers_ub);
 
     // lables:
     printf("%d, ", (uint8_t)(data->udp_lable));

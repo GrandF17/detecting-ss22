@@ -59,14 +59,16 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         array->array[ip_id].q2_pckt_size = 0;
         array->array[ip_id].q3_pckt_size = 0;
         array->array[ip_id].iqr_pckt_size = 0;
-        array->array[ip_id].pckt_size_outliers = 0;
+        array->array[ip_id].pckt_size_outliers_lb = 0;
+        array->array[ip_id].pckt_size_outliers_ub = 0;
 
         array->array[ip_id].std_entropy = 0;
         array->array[ip_id].q1_entropy = 0;
         array->array[ip_id].q2_entropy = 0;
         array->array[ip_id].q3_entropy = 0;
         array->array[ip_id].iqr_entropy = 0;
-        array->array[ip_id].entropy_outliers = 0;
+        array->array[ip_id].entropy_outliers_lb = 0;
+        array->array[ip_id].entropy_outliers_ub = 0;
 
         // lables:
         array->array[ip_id].udp_lable = false;
