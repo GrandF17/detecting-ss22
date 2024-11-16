@@ -9,11 +9,10 @@ gcc net_sniffer.c ./libs/src/dynamic_double.c ./libs/src/dynamic_size_t.c ./libs
 ```bash
 sudo ./sniffer <CLIENT_IP>
 ```
-
+### "First TCP packet metrics" field was constructed according to chinese <a href="https://gfw.report/publications/usenixsecurity23/en/#6-understanding-the-blocking-strategies" target="_blank">researches</a>
 CSV file headers in canonical order:
 ```
 # first TCP packet metrics
-# according to chinese <a href="https://gfw.report/publications/usenixsecurity23/en/#6-understanding-the-blocking-strategies" target="_blank">researches</a>
 entropy                 - 1-st TCP packet entropy 
 range_of_six            - TRUE if first 6 bytes are in range            [0x20, 0x7e] (readable) 
 range_of_half           - TRUE if half of bytes is in range             [0x20, 0x7e] (readable) 
@@ -55,7 +54,7 @@ client_pckt_amount      - amount of packets passed from client to server
 server_pckt_amount      - amount of packets passed from server to client
 min_pckt_size
 max_pckt_size
-keep_alive_pckt_amount  - amount of packets with min size (keep alive pcts)
+keep_alive_pckt_amount  - amount of packets of min size (keep alive pcts)
 ```
 
 ### Now sesions between two current IPs are divided by 5 seconds delay!!!
