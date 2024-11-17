@@ -24,7 +24,7 @@ void finalize_flow(FlowStat *session) {
     session->q3_pckt_size = pckt_sizes_IQR.Q3;
     session->iqr_pckt_size = pckt_sizes_IQR.IQR;
 
-    // outliners:
+    // outliers:
     double lower_bound_pct_sizes = pckt_sizes_IQR.Q1 - 1.5 * pckt_sizes_IQR.IQR;
     double upper_bound_pct_sizes = pckt_sizes_IQR.Q3 + 1.5 * pckt_sizes_IQR.IQR;
 
@@ -43,7 +43,7 @@ void finalize_flow(FlowStat *session) {
     session->q3_entropy = entropy_IQR.Q3;
     session->iqr_entropy = entropy_IQR.IQR;
 
-    // outliners:
+    // outliers:
     double lower_bound_entropy = entropy_IQR.Q1 - 1.5 * entropy_IQR.IQR;
     double upper_bound_entropy = entropy_IQR.Q3 + 1.5 * entropy_IQR.IQR;
 
