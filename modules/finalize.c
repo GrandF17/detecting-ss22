@@ -26,7 +26,7 @@ void finalize_flow(FlowStat *session) {
 
     // outliners:
     double lower_bound_pct_sizes = pckt_sizes_IQR.Q1 - 1.5 * pckt_sizes_IQR.IQR;
-    double upper_bound_pct_sizes = pckt_sizes_IQR.Q1 + 1.5 * pckt_sizes_IQR.IQR;
+    double upper_bound_pct_sizes = pckt_sizes_IQR.Q3 + 1.5 * pckt_sizes_IQR.IQR;
 
     for (int i = 0; i < session->packet_sizes.count; ++i) {
         if (session->packet_sizes.array[i] < lower_bound_pct_sizes) {
