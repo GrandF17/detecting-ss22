@@ -24,20 +24,20 @@ is_http_or_tls          - TRUE if sniffer found TLS/HTTP proto mertics
 # for entropy, size rows
 entropy                 - entropy of total flow per session
 std_pckt_size           - standard deviation of packet lengths in a session
-q1_pckt_size            - # TODO
-q2_pckt_size            - # TODO
-q3_pckt_size            - # TODO
-iqr_pckt_size           - # TODO
-pckt_size_outliers_lb   - # TODO
-pckt_size_outliers_ub   - # TODO
+q1_pckt_size            - 1-st quartile (or 25-th percent), it is a median value of left half in sorted array
+q2_pckt_size            - 2-nd quartile (or 50-th percent), it is a median value of sorted array
+q3_pckt_size            - 3-d quartile (or 75-th percent), it is a median value of right half in sorted array
+iqr_pckt_size           - interquartile range (Q1 - Q3)
+pckt_size_outliers_lb   - here we count lower bounds as Q1−1.5*IQR, and count amount of values that are lower than this bound
+pckt_size_outliers_ub   - here we count upper bounds as Q3+1.5*IQR, and count amount of values that are higher than this bound
 
 std_entropy             - standard deviation of packet entropy in a session
-q1_entropy              - # TODO
-q2_entropy              - # TODO
-q3_entropy              - # TODO
-iqr_entropy             - # TODO
-entropy_outliers_lb     - # TODO
-entropy_outliers_ub     - # TODO
+q1_entropy              - 1-st quartile (or 25-th percent), it is a median value of left half in sorted array
+q2_entropy              - 2-nd quartile (or 50-th percent), it is a median value of sorted array
+q3_entropy              - 3-d quartile (or 75-th percent), it is a median value of right half in sorted array
+iqr_entropy             - interquartile range (Q1 - Q3)
+entropy_outliers_lb     - here we count lower bounds as Q1−1.5*IQR, and count amount of values that are lower than this bound
+entropy_outliers_ub     - here we count upper bounds as Q3+1.5*IQR, and count amount of values that are higher than this bound
 
 # some IP and 6 Layer OSI protos:
 udp_lable               - TRUE if met UDP   in IP proto
@@ -54,17 +54,7 @@ client_pckt_amount      - amount of packets passed from client to server
 server_pckt_amount      - amount of packets passed from server to client
 min_pckt_size
 max_pckt_size
-keep_alive_pckt_amount  - amount of packets of min size (keep alive pcts)
+keep_alive_pckt_amount  - amount of packets of min size (keep-alive packets)
 ```
-
-<script type="text/javascript" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
-
-## Median (Q2)
-
-Sample size **n**:
-- if n is odd: \( Q2 = arr[\lfloor n / 2 \rfloor] \)
-- if n is even: \( Q2 = \frac{arr[(n / 2) - 1] + arr[n / 2]}{2} \)
 
 ### Now sesions between two current IPs are divided by 5 seconds delay!!!
