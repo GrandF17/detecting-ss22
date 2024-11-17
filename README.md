@@ -57,4 +57,14 @@ max_pckt_size
 keep_alive_pckt_amount  - amount of packets of min size (keep alive pcts)
 ```
 
+<script type="text/javascript" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+## Median (Q2)
+
+Sample size **n**:
+- if n is odd: \( Q2 = arr[\lfloor n / 2 \rfloor] \)
+- if n is even: \( Q2 = \frac{arr[(n / 2) - 1] + arr[n / 2]}{2} \)
+
 ### Now sesions between two current IPs are divided by 5 seconds delay!!!
