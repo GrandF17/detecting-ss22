@@ -43,9 +43,9 @@ entropy_outliers_ub     - here we count upper bounds as Q3+1.5*IQR, and count am
 udp_lable               - TRUE if met UDP   in IP proto
 tcp_lable               - TRUE if met TCP   in IP proto
 sctp_lable              - TRUE if met SCTP  in IP proto
-http_lable              - TRUE if met some standart lables of HTTP conncetion (simple check)
-tls_lable               - TRUE if met some standart lables of TLS conncetion (simple check)
-ssh_lable               - TRUE if met some standart lables of SSH conncetion (simple check)
+http_lable              - TRUE if met some standart lables of HTTP connection (simple check)
+tls_lable               - TRUE if met some standart lables of TLS connection (simple check)
+ssh_lable               - TRUE if met some standart lables of SSH connection (simple check)
 
 # other simple metrcis
 total_time              - total session time in milliseconds
