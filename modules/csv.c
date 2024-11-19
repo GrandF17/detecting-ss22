@@ -80,7 +80,7 @@ int appendCSV(const char* file_name, const FlowStat* data) {
     fprintf(file, "%ld, ", data->max_pckt_size);
     fprintf(file, "%ld, ", data->keep_alive_pckt_amount);
 
-    fprintf(file, "0\n");  // 1 --> ss22, 0 --> other
+    fprintf(file, "1\n");  // 1 --> ss22, 0 --> other
 
     fclose(file);
     return 0;
@@ -130,7 +130,7 @@ void logCSV(const FlowStat* data) {
     printf("%ld, ", data->max_pckt_size);
     printf("%ld, ", data->keep_alive_pckt_amount);
 
-    printf("0\n");  // 1 --> ss22, 0 --> other
+    printf("1\n");  // 1 --> ss22, 0 --> other
 }
 
 #endif

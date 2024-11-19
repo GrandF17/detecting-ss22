@@ -33,14 +33,9 @@ QuartileResultDouble IQR_double(double *arr, size_t tags_amount) {
 
     double Q1 = arr[Q1_idx];
     double Q3 = arr[Q3_idx];
-
-    // Рассчитываем Q2 (медиана)
-    double Q2;
-    if (tags_amount % 2 == 0) {
-        Q2 = (arr[(tags_amount / 2) - 1] + arr[tags_amount / 2]) / 2.0;
-    } else {
-        Q2 = arr[tags_amount / 2];
-    }
+    double Q2 = tags_amount % 2 == 0 ?
+        (arr[(tags_amount / 2) - 1] + arr[tags_amount / 2]) / 2.0 :
+        arr[tags_amount / 2];
 
     QuartileResultDouble result = {Q1, Q2, Q3, Q3 - Q1};
     return result;
