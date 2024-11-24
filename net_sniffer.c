@@ -29,12 +29,17 @@
 #include "./modules/ssh_lable.c"
 #include "./modules/tls_lable.c"
 
+#include "./modules/websocket.c"
 #include "./modules/time.c"
 #include "./modules/csv.c"
 
+FlowStatArray ip_stats;
+
 const int *session_split_delay;
 const char *client_ip;
-FlowStatArray ip_stats;
+const char *mode;
+
+
 
 bool is_first_packet_empty(const FirstPacket *packet) {
     return packet->entropy == 0.0 &&
@@ -43,6 +48,10 @@ bool is_first_packet_empty(const FirstPacket *packet) {
            !packet->range_seq &&
            !packet->is_http_or_tls;
 }
+
+
+// -==================================- //
+// -=============- PCAP -=============- //
 
 void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const uint8_t *packet) {
     struct ethernet_header *eth_hdr = (struct ethernet_header *)packet;
@@ -79,7 +88,7 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     }
 
     if(session->start != 0 && session->last_upd + *session_split_delay * 1000 /** milliseconds */ < milliseconds()) {
-        finalize_flow(session);
+        finalize_flow(session, mode);
         create_stat(&ip_stats, session->rec_ip);
     }
 
@@ -190,13 +199,26 @@ void *listen_on_device() {
     return NULL;
 }
 
+
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <CLIENT_IP_ADDRESS> <SESSION_SPLIT_DELAY (sec)>\n", argv[0]);
+    if (argc != 4) {
+        fprintf(stderr, "Usage: %s <CLIENT_IP_ADDRESS> <SESSION_SPLIT_DELAY (sec)> <MODE (broadcast/collect)>\n", argv[0]);
         return 1;
     }
 
     client_ip = argv[1];
+
+    // ==============================
+
+    if(
+        memcmp(argv[3], COLLECT, strlen(COLLECT)) != 0 && 
+        memcmp(argv[3], BROADCAST, strlen(BROADCAST)) != 0
+    ) { return 1; }
+    if(memcmp(argv[3], BROADCAST, strlen(BROADCAST)) == 0) {
+        init_websocket();
+        mode = BROADCAST;
+    } else { mode = COLLECT; }
+
     {
         int *value = malloc(sizeof(int));
         if (value == NULL) { return 1; }
@@ -206,9 +228,8 @@ int main(int argc, char *argv[]) {
     }
 
     init_flow_stat_array(&ip_stats, 10);
-
     listen_on_device();
-
     free_flow_stat_array(&ip_stats);
+
     return 0;
 }

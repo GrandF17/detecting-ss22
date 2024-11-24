@@ -11,6 +11,23 @@
 #define PACKETS_AMOUNT 10
 #define INTERFACE "ens33"       // default interface on Ubuntu 24 to listen
 
+// app modes:
+#define COLLECT "collect"
+#define BROADCAST "broadcast"
+
+#define BUFFER_SIZE 1024
+
+// headers
+#define FIRST_PCT "first_pckt_entropy,range_of_six,range_of_half,range_seq,is_http_or_tls"
+#define ENTROPY "entropy"
+#define STAT_PCKT_SIZES "std_pckt_size,q1_pckt_size,q2_pckt_size,q3_pckt_size,iqr_pckt_size,pckt_size_outliers_lb,pckt_size_outliers_ub"
+#define STAT_ENTROPY "std_entropy,q1_entropy,q2_entropy,q3_entropy,iqr_entropy,entropy_outliers_lb,entropy_outliers_ub"
+#define PROTO_LABLES "udp_lable,tcp_lable,sctp_lable,http_lable,tls_lable,ssh_lable"
+#define OTHER_METRICS "total_time,avg_waiting_time,client_pckt_amount,server_pckt_amount,min_pckt_size,max_pckt_size,keep_alive_pckt_amount"
+#define IS_SS22 "is_ss22"
+
+#define CSV_HEAD FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABLES "," OTHER_METRICS "," IS_SS22 "\n"
+#define CSV_BROADCAST FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABLES "," OTHER_METRICS "\n"
 
 struct ethernet_header {
     uint8_t dest_mac[6];
@@ -44,9 +61,9 @@ typedef struct {
 
 typedef struct {
     double entropy;
-    bool range_of_six;         // first n > 6 bytes are in range [0x20, 0x7e]
-    bool range_of_half;        // more than a half of bytes is in range [0x20, 0x7e]
-    bool range_seq;    // more than 20 bytes are in range [0x20, 0x7e]
+    bool range_of_six;         // first n > 6 bytes are in range [0x20,0x7e]
+    bool range_of_half;        // more than a half of bytes is in range [0x20,0x7e]
+    bool range_seq;    // more than 20 bytes are in range [0x20,0x7e]
     bool is_http_or_tls;
 } FirstPacket;
 
@@ -117,7 +134,7 @@ typedef struct {
 
 // math statstics Structs:
 
-// Q1, Q2, Q3, IQR 
+// Q1,Q2,Q3,IQR 
 typedef struct {
     double Q1;
     double Q2; // median
@@ -125,7 +142,7 @@ typedef struct {
     double IQR;
 } QuartileResultDouble;
 
-// Q1, Q2, Q3, IQR 
+// Q1,Q2,Q3,IQR 
 typedef struct {
     size_t Q1;
     size_t Q2; // median

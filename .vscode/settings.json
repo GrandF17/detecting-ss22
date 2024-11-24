@@ -28,6 +28,7 @@
     "__bit_reference": "c",
     "__split_buffer": "c",
     "string": "c",
-    "time.h": "c"
+    "time.h": "c",
+    "json.h": "c"
   }
 }

@@ -7,16 +7,6 @@
 
 #include "../constants.h"
 
-#define FIRST_PCT "first_pckt_entropy, range_of_six, range_of_half, range_seq, is_http_or_tls"
-#define ENTROPY "entropy"
-#define STAT_PCKT_SIZES "std_pckt_size, q1_pckt_size, q2_pckt_size, q3_pckt_size, iqr_pckt_size, pckt_size_outliers_lb, pckt_size_outliers_ub"
-#define STAT_ENTROPY "std_entropy, q1_entropy, q2_entropy, q3_entropy, iqr_entropy, entropy_outliers_lb, entropy_outliers_ub"
-#define PROTO_LABLES "udp_lable, tcp_lable, sctp_lable, http_lable, tls_lable, ssh_lable"
-#define OTHER_METRICS "total_time, avg_waiting_time, client_pckt_amount, server_pckt_amount, min_pckt_size, max_pckt_size, keep_alive_pckt_amount"
-#define IS_SS22 "is_ss22"
-
-#define CSV_HEAD FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABLES "," OTHER_METRICS "," IS_SS22 "\n"
-
 int is_file_empty_or_nonexistent(const char *filename) {
     FILE *file = fopen(filename,"r");
     if (!file) return 1;
@@ -87,7 +77,7 @@ int appendCSV(const char* file_name, const FlowStat* data) {
 }
 
 void logCSV(const FlowStat* data) {
-    printf("%s,", data->rec_ip);
+    printf("IP %s: ", data->rec_ip);
 
     // first packet:
     printf("%.6f,", data->first_pct_stat.entropy);

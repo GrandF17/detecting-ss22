@@ -2,17 +2,21 @@
 #define SNIFFER_MODULES_FINALIZE_C_INCLUDED
 
 #include "../constants.h"
+
 #include "./deviation.c"
 #include "./entropy.c"
 #include "./iqr.c"
 #include "./csv.c"
+
+#include "./buffer.c"
+#include "./websocket.c"
 
 /**
  * counting parameters:
  * - deviation
  * - timestamps
  */
-void finalize_flow(FlowStat *session) {
+void finalize_flow(FlowStat *session, const char* mode) {
     session->std_pckt_size = deviation(session->packet_sizes.array, session->packet_sizes.count);
     session->std_entropy = deviation(session->packet_entropy.array, session->packet_entropy.count);
     session->entropy = count_bin_entropy(session->empty_bits, session->filled_bits);
@@ -60,8 +64,22 @@ void finalize_flow(FlowStat *session) {
     session->total_time = session->last_upd - session->start;
     session->avg_waiting_time = session->total_time / (double)session->packet_sizes.count;
 
-    appendCSV("data.csv", session);
     logCSV(session);
+
+    if(mode == COLLECT) {
+        appendCSV("data.csv", session);
+    } else if(mode == BROADCAST) {
+        char buffer[BUFFER_SIZE];
+
+        // crteating csv buff
+        size_t len = format_session(buffer, BUFFER_SIZE, session);
+        if (len == 0) {
+            fprintf(stderr, "Error while buffer formating.\n");
+            return;
+        }
+
+        broadcast(buffer, len);
+    }
 }
 
 #endif
