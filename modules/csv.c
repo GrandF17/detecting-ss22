@@ -70,6 +70,12 @@ int appendCSV(const char* file_name, const FlowStat* data) {
     fprintf(file,"%ld,", data->max_pckt_size);
     fprintf(file,"%ld,", data->keep_alive_pckt_amount);
 
+    /* here you can INSERT your own metrics to write down to the file */
+
+    // ...
+
+    /* here you can INSERT your own metrics to write down to the file */
+
     fprintf(file,"0\n");  // 1 --> ss22, 0 --> other
 
     fclose(file);
@@ -119,6 +125,12 @@ void logCSV(const FlowStat* data) {
     printf("%ld,", data->min_pckt_size);
     printf("%ld,", data->max_pckt_size);
     printf("%ld,", data->keep_alive_pckt_amount);
+
+    /* here you can INSERT your own metrics to log in console */
+
+    // ...
+
+    /* here you can INSERT your own metrics to log in console */
 
     printf("0\n");  // 1 --> ss22, 0 --> other
 }

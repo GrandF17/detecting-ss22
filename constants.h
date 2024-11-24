@@ -26,7 +26,9 @@
 #define OTHER_METRICS "total_time,avg_waiting_time,client_pckt_amount,server_pckt_amount,min_pckt_size,max_pckt_size,keep_alive_pckt_amount"
 #define IS_SS22 "is_ss22"
 
+/* here you can INSERT your own headers for metrics */
 #define CSV_HEAD FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABLES "," OTHER_METRICS "," IS_SS22 "\n"
+/* here you can INSERT your own headers for metrics */
 #define CSV_BROADCAST FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABLES "," OTHER_METRICS "\n"
 
 struct ethernet_header {
@@ -108,6 +110,13 @@ typedef struct {
     size_t min_pckt_size;
     size_t max_pckt_size;
     size_t keep_alive_pckt_amount;
+
+    /* here you can INSERT your own metrics variables */
+
+    // ...
+    
+    /* here you can INSERT your own metrics variables */
+
 
     // ==================
     // service variables:

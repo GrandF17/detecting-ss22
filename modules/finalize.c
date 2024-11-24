@@ -64,6 +64,12 @@ void finalize_flow(FlowStat *session, const char* mode) {
     session->total_time = session->last_upd - session->start;
     session->avg_waiting_time = session->total_time / (double)session->packet_sizes.count;
 
+    /* here you can INSERT your own metrics to finalize */
+
+    // ...
+
+    /* here you can INSERT your own metrics to finalize */
+
     logCSV(session);
 
     if(mode == COLLECT) {

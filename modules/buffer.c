@@ -53,6 +53,12 @@ size_t format_session(char *buffer, size_t buffer_size, FlowStat *session) {
         session->min_pckt_size,
         session->max_pckt_size,
         session->keep_alive_pckt_amount
+
+        /* here you can INSERT your own metrics to write down to WS buffer */
+
+        // ... 
+
+        /* here you can INSERT your own metrics to write down to WS buffer */
     );
 
     // recording ip addr:

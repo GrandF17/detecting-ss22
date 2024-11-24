@@ -2,12 +2,12 @@
 
 ## To compile:
 ```bash
-gcc net_sniffer.c ./libs/src/dynamic_double.c ./libs/src/dynamic_size_t.c ./libs/src/dynamic_flow_stats.c -o sniffer -lpcap -lm
+gcc net_sniffer.c ./libs/src/dynamic_double.c ./libs/src/dynamic_size_t.c ./libs/src/dynamic_flow_stats.c -o sniffer -lpcap -lm -lwebsockets
 ```
 
 ## To run:
 ```bash
-sudo ./sniffer <CLIENT_IP>
+sudo ./sniffer <CLIENT_IP> <DELAY> <MODE>
 ```
 ### "First TCP packet metrics" field was constructed according to chinese <a href="https://gfw.report/publications/usenixsecurity23/en/#6-understanding-the-blocking-strategies" target="_blank">researches</a>
 CSV file headers in canonical order:
@@ -57,4 +57,8 @@ max_pckt_size
 keep_alive_pckt_amount  - amount of packets of min size (keep-alive packets)
 ```
 
-### Now sesions between two current IPs are divided by 5 seconds delay!!!
+### You can split sessions between 2 current ips by selecting amount of seconds for delay (5 seconds for example)!!!
+
+
+## NOTE
+If you want to add your own metrics to handle search for "here you can INSERT" and paste your own logic/variables to handle by this app

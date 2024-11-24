@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stddef.h>
+#include <signal.h>
 
 // =========================
 #include "./constants.h"
@@ -35,12 +36,12 @@
 
 FlowStatArray ip_stats;
 
-const int *session_split_delay;
-const char *client_ip;
-const char *mode;
+const int *session_split_delay; // in seconds
+const char *client_ip;          // fixed client ip to watch
+const char *mode;               // collect/broadcast
 
 
-bool is_first_packet_empty(const FirstPacket *packet) {
+bool first_time_met_tcp(const FirstPacket *packet) {
     return packet->entropy == 0.0 &&
            !packet->range_of_six &&
            !packet->range_of_half &&
@@ -56,11 +57,11 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     struct ethernet_header *eth_hdr = (struct ethernet_header *)packet;
 
     if (ntohs(eth_hdr->ethertype) == ARP_PROTOCOL) {
-        // printf("An ARP packet.\n");
+        // printf("ARP packet handled.\n");
         return;
     }
 
-    struct ip *ip_header = (struct ip *)(packet + ETHERNET_HEADER_LEN);  // Ethernet header is 14 bytes
+    struct ip *ip_header = (struct ip *)(packet + ETHERNET_HEADER_LEN);
 
     char src_ip[INET_ADDRSTRLEN];
     char dst_ip[INET_ADDRSTRLEN];
@@ -70,71 +71,57 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
 
     // detecting interaction ip
     const char *remote_ip = strcmp(src_ip, client_ip) == 0 ? dst_ip : src_ip;
-
+    // find or init session for current remoute ip
+    int idx = get_stat_idx(&ip_stats, remote_ip);
     FlowStat *session;
 
-    // get stats for current remote_ip
-    int idx = get_stat_idx(&ip_stats, remote_ip);
-    if (idx != -1) {
-        session = &ip_stats.array[idx];
-    } else {
+    if (idx == -1) {
         int newIdx = create_stat(&ip_stats, remote_ip);
         if(newIdx == -1) {
             printf("ERROR (create_stat)!!!\n");
-            return;
+            exit(1);
         }
         session = &ip_stats.array[newIdx];
-    }
+    } else { session = &ip_stats.array[idx]; }
 
-    if(session->start != 0 && session->last_upd + *session_split_delay * 1000 /** milliseconds */ < milliseconds()) {
+    // finalize session, if delay between latest and 
+    // current packets more than 'session_split_delay'
+    if(session->start != 0 && session->last_upd + *session_split_delay * 1000 < milliseconds()) {
         finalize_flow(session, mode);
         create_stat(&ip_stats, session->rec_ip);
     }
 
     // counting server/client packets passed to each other
-    if(strcmp(src_ip, client_ip) == 0) {
-        ++session->client_pckt_amount;
-    } else {
-        ++session->server_pckt_amount;
-    }
+    if(strcmp(src_ip, client_ip) == 0) { ++session->client_pckt_amount; } 
+    else { ++session->server_pckt_amount; }
 
-    if(session->start == 0) {
-        session->start = milliseconds();
-    }
+    // time record
+    if(session->start == 0) { session->start = milliseconds(); }
     session->last_upd = milliseconds();
 
     // detecting ip protos
     if (ip_header->ip_p == IPPROTO_TCP) {
-        session->tcp_lable = true;
-
-        // first tcp packet payload:
-        if(is_first_packet_empty(&session->first_pct_stat)) {
+        if(first_time_met_tcp(&session->first_pct_stat)) {
             session->first_pct_stat.entropy = count_packet_entropy(packet, header->len);
             session->first_pct_stat.range_of_six = check_first_six_bytes(packet, header->len);
             session->first_pct_stat.range_of_half = check_more_than_50_percent(packet, header->len);
             session->first_pct_stat.range_seq = check_more_than_20_contiguous(packet, header->len);
             session->first_pct_stat.is_http_or_tls = has_tls_lable(header, packet) || has_http_lable(header, packet); 
         }
-    } else if (ip_header->ip_p == IPPROTO_UDP) {
-        session->udp_lable = true;
-    } else if (ip_header->ip_p == IPPROTO_SCTP) {
-        session->sctp_lable = true;
-    }
+
+        session->tcp_lable = true;
+    } 
+    else if (ip_header->ip_p == IPPROTO_UDP) { session->udp_lable = true; } 
+    else if (ip_header->ip_p == IPPROTO_SCTP) { session->sctp_lable = true; }
 
     // detecting secure protos
-    if (has_tls_lable(header, packet)) {
-        session->tls_lable = true;
-    }
-    if (has_ssh_lable(header, packet)) {
-        session->ssh_lable = true;
-    }
-    if (has_http_lable(header, packet)) {
-        session->http_lable = true;
-    }
+    if (has_tls_lable(header, packet)) session->tls_lable = true;
+    if (has_ssh_lable(header, packet)) session->ssh_lable = true;
+    if (has_http_lable(header, packet)) session->http_lable = true;
 
-    // packet len deviation:
+    // collecting each packet len data
     push_back_size_t(&session->packet_sizes, header->len);
-    // entropy deviation:
+    // collecting each packet entropy data
     push_back_double(&session->packet_entropy, count_packet_entropy(packet, header->len));
 
     // min packet len
@@ -154,15 +141,23 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     if (session->max_pckt_size == 0) {
         session->max_pckt_size = header->len;
     } else {
-        session->max_pckt_size =
-            session->max_pckt_size > header->len ? session->max_pckt_size : header->len;
+        session->max_pckt_size = session->max_pckt_size > header->len 
+            ? session->max_pckt_size 
+            : header->len;
     }
 
-    // total flow entropy:
+    // collecting amount of filled and empty bits
+    // for total flow per session
     for (size_t i = 0; i < header->len; ++i) {
         session->empty_bits += 8 - bit_count_table[packet[i]];
         session->filled_bits += bit_count_table[packet[i]];
     }
+
+    /* here you can INSERT your own metrics to collect */
+
+    // ...
+
+    /* here you can INSERT your own metrics to collect */
 }
 
 void *listen_on_device() {
@@ -197,8 +192,19 @@ void *listen_on_device() {
     return NULL;
 }
 
+// smart programm interruption
+void signal_handler(int signum) {
+    printf("\nCaught signal %d (e.g., Ctrl+C). Executing cleanup...\n", signum);
+
+    // running through all 'ip_stats' and recording them to .csv...
+
+    // programm complete
+    exit(0);
+}
+
 
 int main(int argc, char *argv[]) {
+    signal(SIGINT, signal_handler);
     if (argc != 4) {
         fprintf(stderr, "Usage: sudo %s <CLIENT_IP_ADDRESS> <SESSION_SPLIT_DELAY> <MODE>\n", argv[0]);
         fprintf(stderr, "CLIENT_IP_ADDRESS - ip str you want to watch after\n");
@@ -210,6 +216,9 @@ int main(int argc, char *argv[]) {
     }
 
     client_ip = argv[1];
+
+    // ==============================
+    // interruption handler:
 
     // ==============================
 
