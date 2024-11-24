@@ -8,13 +8,17 @@
 #include "../constants.h"
 
 size_t format_session(char *buffer, size_t buffer_size, FlowStat *session) {
-    int header_length = snprintf(buffer, buffer_size, "%s", "");
+    // recording metric headers
+    int header_length = snprintf(buffer, buffer_size, "%s", CSV_BROADCAST);
     if (header_length < 0 || (size_t)header_length >= buffer_size) {
         fprintf(stderr, "Error: buffer overflow while writing headers.\n");
         return 0;
     }
 
-    int value_length = snprintf(buffer + header_length, buffer_size - header_length,
+    // recording flow metrics
+    int value_length = snprintf(
+        buffer + header_length, 
+        buffer_size - header_length,
         "%.6f,%d,%d,%d,%d,%.6f,%.6f,%ld,%ld,%ld,%ld,%ld,%ld,%.6f,%.6f,%.6f,%.6f,%.6f,%ld,%ld,%d,%d,%d,%d,%d,%d,%llu,%llu,%ld,%ld,%ld,%ld,%ld",
         session->first_pct_stat.entropy,
         (int)(session->first_pct_stat.range_of_six),
@@ -48,17 +52,24 @@ size_t format_session(char *buffer, size_t buffer_size, FlowStat *session) {
         session->server_pckt_amount,
         session->min_pckt_size,
         session->max_pckt_size,
-        session->keep_alive_pckt_amount);
+        session->keep_alive_pckt_amount
+    );
+
+    // recording ip addr:
+    int ip_len = snprintf(
+        buffer + header_length + value_length, 
+        buffer_size - header_length - value_length,
+        "\n%s",
+        session->rec_ip
+    );
      
 
-    if(value_length < 0 || (size_t)(header_length + value_length) >= buffer_size) {
+    if(value_length < 0 || (size_t)(header_length + value_length + ip_len) >= buffer_size) {
         fprintf(stderr, "Error: buffer overflow while writing values.\n");
         return 0;
     }
 
-    printf("Buffer content:\n%s\n", buffer);
-
-    return header_length + value_length;
+    return header_length + value_length + ip_len;
 }
 
 #endif

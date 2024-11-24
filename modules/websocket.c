@@ -72,9 +72,7 @@ void init_websocket() {
 }
 
 
-void broadcast(char *buffer, size_t buffer_length) {
-    printf("Bf size: %lu\n", buffer_length);
-    
+void broadcast(char *buffer, size_t buffer_length) {    
     if (wsi == NULL) {
         fprintf(stderr, "Error: WebSocket connection is not initialized.\n");
         return;
@@ -96,7 +94,7 @@ void broadcast(char *buffer, size_t buffer_length) {
     if (n < 0) {
         fprintf(stderr, "Errored while sending by WebSocket.\n");
     } else {
-        printf("Sent by WebSocket: %s\n", buffer);
+        printf("Buffer (%lu bytes) sent by WebSocket.\n", buffer_length);
     }
 }
 

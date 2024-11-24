@@ -40,7 +40,6 @@ const char *client_ip;
 const char *mode;
 
 
-
 bool is_first_packet_empty(const FirstPacket *packet) {
     return packet->entropy == 0.0 &&
            !packet->range_of_six &&
@@ -130,7 +129,6 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
         session->ssh_lable = true;
     }
     if (has_http_lable(header, packet)) {
-        printf("HTTP for %s\n", remote_ip);
         session->http_lable = true;
     }
 
@@ -202,7 +200,12 @@ void *listen_on_device() {
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
-        fprintf(stderr, "Usage: %s <CLIENT_IP_ADDRESS> <SESSION_SPLIT_DELAY (sec)> <MODE (broadcast/collect)>\n", argv[0]);
+        fprintf(stderr, "Usage: sudo %s <CLIENT_IP_ADDRESS> <SESSION_SPLIT_DELAY> <MODE>\n", argv[0]);
+        fprintf(stderr, "CLIENT_IP_ADDRESS - ip str you want to watch after\n");
+        fprintf(stderr, "SESSION_SPLIT_DELAY - interval in seconds that allows to split sessions for 2 current ips\n");
+        fprintf(stderr, "MODE:\n");
+        fprintf(stderr, "\t - 'collect' affords to collect data for all ips connceted to CLIENT_IP_ADDRESS to .csv\n");
+        fprintf(stderr, "\t - 'broadcast' affords to send formated data to educated AI model by WebSocket to detect SS22 in flow by collceted metrics\n");
         return 1;
     }
 
