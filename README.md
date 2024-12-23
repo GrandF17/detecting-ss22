@@ -40,12 +40,12 @@ entropy_outliers_lb     - here we count lower bounds as Q1−1.5*IQR, and count 
 entropy_outliers_ub     - here we count upper bounds as Q3+1.5*IQR, and count amount of values that are higher than this bound
 
 # some IP and 6 Layer OSI protos:
-udp_lable               - TRUE if met UDP   in IP proto
-tcp_lable               - TRUE if met TCP   in IP proto
-sctp_lable              - TRUE if met SCTP  in IP proto
-http_lable              - TRUE if met some standart lables of HTTP connection (simple check)
-tls_lable               - TRUE if met some standart lables of TLS connection (simple check)
-ssh_lable               - TRUE if met some standart lables of SSH connection (simple check)
+udp_label               - TRUE if met UDP   in IP proto
+tcp_label               - TRUE if met TCP   in IP proto
+sctp_label              - TRUE if met SCTP  in IP proto
+http_label              - TRUE if met some standart labels of HTTP connection (simple check)
+tls_label               - TRUE if met some standart labels of TLS connection (simple check)
+ssh_label               - TRUE if met some standart labels of SSH connection (simple check)
 
 # other simple metrcis
 total_time              - total session time in milliseconds

@@ -1,5 +1,5 @@
-#ifndef SNIFFER_MODULES_IS_TLS_LABLE_C_INCLUDED
-#define SNIFFER_MODULES_IS_TLS_LABLE_C_INCLUDED
+#ifndef SNIFFER_MODULES_IS_TLS_LABEL_C_INCLUDED
+#define SNIFFER_MODULES_IS_TLS_LABEL_C_INCLUDED
 
 #include <pcap.h>
 #include <string.h>
@@ -24,7 +24,7 @@
 #define CLIENT_HELLO 0x01
 #define SERVER_HELLO 0x02
 
-bool has_tls_lable(const struct pcap_pkthdr *header, const char *packet) {
+bool has_tls_label(const struct pcap_pkthdr *header, const char *packet) {
     if (header->caplen < 54) {
         return false;
     }

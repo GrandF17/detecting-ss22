@@ -26,9 +26,9 @@
 #include "./modules/finalize.c"
 #include "./modules/deviation.c"
 #include "./modules/entropy.c"
-#include "./modules/http_lable.c"
-#include "./modules/ssh_lable.c"
-#include "./modules/tls_lable.c"
+#include "./modules/http_label.c"
+#include "./modules/ssh_label.c"
+#include "./modules/tls_label.c"
 
 #include "./modules/websocket.c"
 #include "./modules/time.c"
@@ -106,18 +106,18 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
             session->first_pct_stat.range_of_six = check_first_six_bytes(packet, header->len);
             session->first_pct_stat.range_of_half = check_more_than_50_percent(packet, header->len);
             session->first_pct_stat.range_seq = check_more_than_20_contiguous(packet, header->len);
-            session->first_pct_stat.is_http_or_tls = has_tls_lable(header, packet) || has_http_lable(header, packet); 
+            session->first_pct_stat.is_http_or_tls = has_tls_label(header, packet) || has_http_label(header, packet); 
         }
 
-        session->tcp_lable = true;
+        session->tcp_label = true;
     } 
-    else if (ip_header->ip_p == IPPROTO_UDP) { session->udp_lable = true; } 
-    else if (ip_header->ip_p == IPPROTO_SCTP) { session->sctp_lable = true; }
+    else if (ip_header->ip_p == IPPROTO_UDP) { session->udp_label = true; } 
+    else if (ip_header->ip_p == IPPROTO_SCTP) { session->sctp_label = true; }
 
     // detecting secure protos
-    if (has_tls_lable(header, packet)) session->tls_lable = true;
-    if (has_ssh_lable(header, packet)) session->ssh_lable = true;
-    if (has_http_lable(header, packet)) session->http_lable = true;
+    if (has_tls_label(header, packet)) session->tls_label = true;
+    if (has_ssh_label(header, packet)) session->ssh_label = true;
+    if (has_http_label(header, packet)) session->http_label = true;
 
     // collecting each packet len data
     push_back_size_t(&session->packet_sizes, header->len);

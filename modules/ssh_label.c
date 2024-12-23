@@ -1,5 +1,5 @@
-#ifndef SNIFFER_MODULES_IS_SSH_LABLE_C_INCLUDED
-#define SNIFFER_MODULES_IS_SSH_LABLE_C_INCLUDED
+#ifndef SNIFFER_MODULES_IS_SSH_label_C_INCLUDED
+#define SNIFFER_MODULES_IS_SSH_label_C_INCLUDED
 
 #include <pcap.h>
 #include <string.h>
@@ -11,7 +11,7 @@
 #define SSH_PORT 22
 #define SSH_PREFIX "SSH-"
 
-bool has_ssh_lable(const struct pcap_pkthdr *header, const uint8_t *packet) {
+bool has_ssh_label(const struct pcap_pkthdr *header, const uint8_t *packet) {
     if (header->caplen < 54) {
         return false;
     }

@@ -22,14 +22,14 @@
 #define ENTROPY "entropy"
 #define STAT_PCKT_SIZES "std_pckt_size,q1_pckt_size,q2_pckt_size,q3_pckt_size,iqr_pckt_size,pckt_size_outliers_lb,pckt_size_outliers_ub"
 #define STAT_ENTROPY "std_entropy,q1_entropy,q2_entropy,q3_entropy,iqr_entropy,entropy_outliers_lb,entropy_outliers_ub"
-#define PROTO_LABLES "udp_lable,tcp_lable,sctp_lable,http_lable,tls_lable,ssh_lable"
+#define PROTO_LABELS "udp_label,tcp_label,sctp_label,http_label,tls_label,ssh_label"
 #define OTHER_METRICS "total_time,avg_waiting_time,client_pckt_amount,server_pckt_amount,min_pckt_size,max_pckt_size,keep_alive_pckt_amount"
 #define IS_SS22 "is_ss22"
 
 /* here you can INSERT your own headers for metrics */
-#define CSV_HEAD FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABLES "," OTHER_METRICS "," IS_SS22 "\n"
+#define CSV_HEAD FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABELS "," OTHER_METRICS "," IS_SS22 "\n"
 /* here you can INSERT your own headers for metrics */
-#define CSV_BROADCAST FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABLES "," OTHER_METRICS "\n"
+#define CSV_BROADCAST FIRST_PCT "," ENTROPY "," STAT_PCKT_SIZES "," STAT_ENTROPY "," PROTO_LABELS "," OTHER_METRICS "\n"
 
 struct ethernet_header {
     uint8_t dest_mac[6];
@@ -94,14 +94,14 @@ typedef struct {
 
     // using only port and basic points recognition:
     // more representative:
-    bool udp_lable;
-    bool tcp_lable;
-    bool sctp_lable;
+    bool udp_label;
+    bool tcp_label;
+    bool sctp_label;
     // less representative:
     // false positives are likely
-    bool http_lable;
-    bool tls_lable;
-    bool ssh_lable;
+    bool http_label;
+    bool tls_label;
+    bool ssh_label;
 
     long long total_time;
     long long avg_waiting_time;

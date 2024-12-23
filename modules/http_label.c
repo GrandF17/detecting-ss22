@@ -1,5 +1,5 @@
-#ifndef SNIFFER_MODULES_HTTP_LABLE_C_INCLUDED
-#define SNIFFER_MODULES_HTTP_LABLE_C_INCLUDED
+#ifndef SNIFFER_MODULES_HTTP_LABEL_C_INCLUDED
+#define SNIFFER_MODULES_HTTP_LABEL_C_INCLUDED
 
 #include <pcap.h>
 #include <stdio.h>
@@ -17,7 +17,7 @@ const char *http_signatures[HTTP_SIGNATURES_COUNT] = {
     "PATCH", "CONNECT", "TRACE", "HTTP/1.0", "HTTP/1.1", "HTTP/2"
 };
 
-bool has_http_lable(const struct pcap_pkthdr *header, const uint8_t *packet) {
+bool has_http_label(const struct pcap_pkthdr *header, const uint8_t *packet) {
     struct ether_header *eth = (struct ether_header *)packet;
 
     // check if it's IPv4

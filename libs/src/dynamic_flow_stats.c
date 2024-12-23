@@ -70,13 +70,13 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
         array->array[ip_id].entropy_outliers_lb = 0;
         array->array[ip_id].entropy_outliers_ub = 0;
 
-        // lables:
-        array->array[ip_id].udp_lable = false;
-        array->array[ip_id].tcp_lable = false;
-        array->array[ip_id].sctp_lable = false;
-        array->array[ip_id].http_lable = false;
-        array->array[ip_id].tls_lable = false;
-        array->array[ip_id].ssh_lable = false;
+        // labels:
+        array->array[ip_id].udp_label = false;
+        array->array[ip_id].tcp_label = false;
+        array->array[ip_id].sctp_label = false;
+        array->array[ip_id].http_label = false;
+        array->array[ip_id].tls_label = false;
+        array->array[ip_id].ssh_label = false;
 
         // other metrics:
         array->array[ip_id].avg_waiting_time = 0;

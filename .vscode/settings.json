@@ -29,6 +29,7 @@
     "__split_buffer": "c",
     "string": "c",
     "time.h": "c",
-    "json.h": "c"
+    "json.h": "c",
+    "if_ether.h": "c"
   }
 }

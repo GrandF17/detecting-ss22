@@ -54,13 +54,13 @@ int appendCSV(const char* file_name, const FlowStat* data) {
     fprintf(file,"%ld,", data->entropy_outliers_lb);
     fprintf(file,"%ld,", data->entropy_outliers_ub);
 
-    // lables:
-    fprintf(file,"%d,", (uint8_t)(data->udp_lable));
-    fprintf(file,"%d,", (uint8_t)(data->tcp_lable));
-    fprintf(file,"%d,", (uint8_t)(data->sctp_lable));
-    fprintf(file,"%d,", (uint8_t)(data->http_lable));
-    fprintf(file,"%d,", (uint8_t)(data->tls_lable));
-    fprintf(file,"%d,", (uint8_t)(data->ssh_lable));
+    // labels:
+    fprintf(file,"%d,", (uint8_t)(data->udp_label));
+    fprintf(file,"%d,", (uint8_t)(data->tcp_label));
+    fprintf(file,"%d,", (uint8_t)(data->sctp_label));
+    fprintf(file,"%d,", (uint8_t)(data->http_label));
+    fprintf(file,"%d,", (uint8_t)(data->tls_label));
+    fprintf(file,"%d,", (uint8_t)(data->ssh_label));
 
     fprintf(file,"%llu,", data->total_time);
     fprintf(file,"%llu,", data->avg_waiting_time);
@@ -76,7 +76,7 @@ int appendCSV(const char* file_name, const FlowStat* data) {
 
     /* here you can INSERT your own metrics to write down to the file */
 
-    fprintf(file,"0\n");  // 1 --> ss22, 0 --> other
+    fprintf(file,"1\n");  // 1 --> ss22, 0 --> other
 
     fclose(file);
     return 0;
@@ -110,13 +110,13 @@ void logCSV(const FlowStat* data) {
     printf("%ld,", data->entropy_outliers_lb);
     printf("%ld,", data->entropy_outliers_ub);
 
-    // lables:
-    printf("%d,", (uint8_t)(data->udp_lable));
-    printf("%d,", (uint8_t)(data->tcp_lable));
-    printf("%d,", (uint8_t)(data->sctp_lable));
-    printf("%d,", (uint8_t)(data->http_lable));
-    printf("%d,", (uint8_t)(data->tls_lable));
-    printf("%d,", (uint8_t)(data->ssh_lable));
+    // labels:
+    printf("%d,", (uint8_t)(data->udp_label));
+    printf("%d,", (uint8_t)(data->tcp_label));
+    printf("%d,", (uint8_t)(data->sctp_label));
+    printf("%d,", (uint8_t)(data->http_label));
+    printf("%d,", (uint8_t)(data->tls_label));
+    printf("%d,", (uint8_t)(data->ssh_label));
 
     printf("%llu,", data->total_time);
     printf("%llu,", data->avg_waiting_time);
@@ -132,7 +132,7 @@ void logCSV(const FlowStat* data) {
 
     /* here you can INSERT your own metrics to log in console */
 
-    printf("0\n");  // 1 --> ss22, 0 --> other
+    printf("1\n");  // 1 --> ss22, 0 --> other
 }
 
 #endif
