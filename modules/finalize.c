@@ -72,8 +72,9 @@ void finalize_flow(FlowStat *session, const char* mode) {
 
     logCSV(session);
 
-    if(mode == COLLECT) {
-        appendCSV("data.csv", session);
+    if(mode == COLLECT_SS22 || mode == COLLECT_LEGITIMATE_TRAFFIC) {
+        bool collect_mode = mode == COLLECT_SS22 ? true : false;
+        appendCSV("data.csv", session, collect_mode);
     } else if(mode == BROADCAST) {
         char buffer[BUFFER_SIZE];
 

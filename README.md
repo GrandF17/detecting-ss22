@@ -9,6 +9,11 @@ gcc net_sniffer.c ./libs/src/dynamic_double.c ./libs/src/dynamic_size_t.c ./libs
 ```bash
 sudo ./sniffer <CLIENT_IP> <DELAY> <MODE>
 ```
+
+MODE: collect, broadcast
+
+DELAY: 1, 2, 3... (just number in seconds)
+
 ### "First TCP packet metrics" field was constructed according to chinese <a href="https://gfw.report/publications/usenixsecurity23/en/#6-understanding-the-blocking-strategies" target="_blank">researches</a>
 CSV file headers in canonical order:
 ```

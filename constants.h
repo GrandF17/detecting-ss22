@@ -12,7 +12,8 @@
 #define INTERFACE "ens33"       // default interface on Ubuntu 24 to listen
 
 // app modes:
-#define COLLECT "collect"
+#define COLLECT_SS22 "collect_ss22"
+#define COLLECT_LEGITIMATE_TRAFFIC "collect_lt"
 #define BROADCAST "broadcast"
 
 #define BUFFER_SIZE 1024

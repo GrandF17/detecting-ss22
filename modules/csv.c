@@ -18,7 +18,7 @@ int is_file_empty_or_nonexistent(const char *filename) {
 }
 
 
-int appendCSV(const char* file_name, const FlowStat* data) {
+int appendCSV(const char* file_name, const FlowStat* data, const bool collect_mode) {
     FILE* file = fopen(file_name,"a");
     if (file == NULL) {
         perror("Failed to open file");
@@ -76,7 +76,7 @@ int appendCSV(const char* file_name, const FlowStat* data) {
 
     /* here you can INSERT your own metrics to write down to the file */
 
-    fprintf(file,"1\n");  // 1 --> ss22, 0 --> other
+    fprintf(file,"%d\n", (uint8_t)(collect_mode));
 
     fclose(file);
     return 0;
@@ -131,8 +131,7 @@ void logCSV(const FlowStat* data) {
     // ...
 
     /* here you can INSERT your own metrics to log in console */
-
-    printf("1\n");  // 1 --> ss22, 0 --> other
+    printf("\n");
 }
 
 #endif

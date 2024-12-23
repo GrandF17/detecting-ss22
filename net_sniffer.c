@@ -210,7 +210,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "CLIENT_IP_ADDRESS - ip str you want to watch after\n");
         fprintf(stderr, "SESSION_SPLIT_DELAY - interval in seconds that allows to split sessions for 2 current ips\n");
         fprintf(stderr, "MODE:\n");
-        fprintf(stderr, "\t - 'collect' affords to collect data for all ips connceted to CLIENT_IP_ADDRESS to .csv\n");
+        fprintf(stderr, "\t - 'collect_ss22' affords to collect !shadowsocks22! traffic metrics for all ips connceted to CLIENT_IP_ADDRESS to .csv\n");
+        fprintf(stderr, "\t - 'collect_lt' affords to collect !legitimate! traffic metrics for all ips connceted to CLIENT_IP_ADDRESS to .csv\n");
         fprintf(stderr, "\t - 'broadcast' affords to send formated data to educated AI model by WebSocket to detect SS22 in flow by collceted metrics\n");
         return 1;
     }
@@ -222,14 +223,16 @@ int main(int argc, char *argv[]) {
 
     // ==============================
 
-    if(
-        memcmp(argv[3], COLLECT, strlen(COLLECT)) != 0 && 
-        memcmp(argv[3], BROADCAST, strlen(BROADCAST)) != 0
-    ) { return 1; }
     if(memcmp(argv[3], BROADCAST, strlen(BROADCAST)) == 0) {
         init_websocket();
         mode = BROADCAST;
-    } else { mode = COLLECT; }
+    } else if (memcmp(argv[3], COLLECT_SS22, strlen(COLLECT_SS22)) == 0) {
+        mode = COLLECT_SS22;
+    } else if(memcmp(argv[3], COLLECT_LEGITIMATE_TRAFFIC, strlen(COLLECT_LEGITIMATE_TRAFFIC)) == 0) { 
+        mode = COLLECT_LEGITIMATE_TRAFFIC;
+    } else {
+        return 1;
+    }
 
     {
         int *value = malloc(sizeof(int));
