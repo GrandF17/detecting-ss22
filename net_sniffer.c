@@ -18,6 +18,7 @@
 
 // =========================
 #include "./libs/head/dynamic_flow_stats.h"
+#include "./libs/head/dynamic_ip_port.h"
 #include "./libs/head/dynamic_double.h"
 #include "./libs/head/dynamic_size_t.h"
 
@@ -35,6 +36,7 @@
 #include "./modules/csv.c"
 
 FlowStatArray ip_stats;
+IP_PortArray ip_port;
 
 const int *session_split_delay; // in seconds
 const char *client_ip;          // fixed client ip to watch
@@ -124,7 +126,7 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
 
     // detecting secure protos
     if (has_tls_label(header, packet)) session->tls_label = true;
-    if (has_ssh_label(header, packet)) session->ssh_label = true;
+    if (has_ssh_label(&ip_port, header, packet)) session->ssh_label = true;
     if (has_http_label(header, packet)) session->http_label = true;
 
     // collecting each packet len data
@@ -205,6 +207,12 @@ void signal_handler(int signum) {
     printf("\nCaught signal %d (e.g., Ctrl+C). Executing cleanup...\n", signum);
 
     // running through all 'ip_stats' and recording them to .csv...
+    for(size_t i = 0; i < ip_stats.count; ++i) {
+        finalize_flow(&ip_stats.array[i], mode);
+    }
+
+    free_flow_stat_array(&ip_stats);
+    free_ip_port_array(&ip_port);
 
     // programm complete
     exit(0);
@@ -225,9 +233,6 @@ int main(int argc, char *argv[]) {
     }
 
     client_ip = argv[1];
-
-    // ==============================
-    // interruption handler:
 
     // ==============================
 
@@ -251,8 +256,12 @@ int main(int argc, char *argv[]) {
     }
 
     init_flow_stat_array(&ip_stats, 10);
+    init_ip_port_array(&ip_port, 10);
+
     listen_on_device();
+
     free_flow_stat_array(&ip_stats);
+    free_ip_port_array(&ip_port);
 
     return 0;
 }

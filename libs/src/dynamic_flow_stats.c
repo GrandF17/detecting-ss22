@@ -10,14 +10,14 @@
 #include "../head/dynamic_double.h"
 #include "../head/dynamic_size_t.h"
 
-int init_flow_stat_array(FlowStatArray *array, size_t initial_capacity) {
+void init_flow_stat_array(FlowStatArray *array, size_t initial_capacity) {
     array->array = (FlowStat *)malloc(initial_capacity * sizeof(FlowStat));
     if (array->array == NULL) {
-        return -1;
+        perror("Failed to allocate memory init_ip_port_array");
+        exit(EXIT_FAILURE);
     }
     array->count = 0;
     array->capacity = initial_capacity;
-    return 0;
 }
 
 void free_flow_stat_array(FlowStatArray *array) {
@@ -105,13 +105,12 @@ int create_stat(FlowStatArray *array, const char *ip_address, const uint16_t por
     }
 
     if (array->count >= array->capacity) {
-        size_t new_capacity = array->capacity * 2;
-        FlowStat *new_array = (FlowStat *)realloc(array->array, new_capacity * sizeof(FlowStat));
-        if (new_array == NULL) {
-            return -1;
+        array->capacity = 2 * array->capacity + 1;
+        array->array = (FlowStat *)realloc(array->array, array->capacity * sizeof(FlowStat));
+        if (array->array == NULL) {
+            perror("Failed to reallocate memory flow_stats array");
+            exit(EXIT_FAILURE);
         }
-        array->array = new_array;
-        array->capacity = new_capacity;
     }
 
     strcpy(array->array[array->count].rec_ip, ip_address);

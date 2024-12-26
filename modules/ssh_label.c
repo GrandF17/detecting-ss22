@@ -8,9 +8,6 @@
 #include <ctype.h>
 
 #include "../constants.h"
-#include "../libs/head/dynamic_ip_port.h"
-
-IP_PortArray ip_port;
 
 bool is_ssh_kex(const uint8_t *payload) {
     regex_t regex;
@@ -37,8 +34,8 @@ bool is_ssh_kex(const uint8_t *payload) {
 
     reti = regcomp(&regex, pattern, REG_EXTENDED);
     if (reti) {
-        printf("Compilation error of regex\n");
-        return false;
+        perror("Compilation error of regex");
+        exit(EXIT_FAILURE);
     }
 
     reti = regexec(&regex, (const char *)payload, 0, NULL, 0);
@@ -49,7 +46,7 @@ bool is_ssh_kex(const uint8_t *payload) {
     return is_kex;
 }
 
-bool has_ssh_label(const struct pcap_pkthdr *header, const uint8_t *packet) {
+bool has_ssh_label(IP_PortArray *ip_port, const struct pcap_pkthdr *header, const uint8_t *packet) {
     if (header->caplen < 54) {
         return false;
     }
@@ -75,24 +72,18 @@ bool has_ssh_label(const struct pcap_pkthdr *header, const uint8_t *packet) {
 
     if (
         (tcp_flags & 0x01 || tcp_flags & 0x04) && // FIN || RST
-        contains_ip_port(&ip_port, ip_dst, dest_port)
-    ) { 
-        printf("%d:%d", ip_dst, dest_port);
-        remove_ip_port(&ip_port, ip_dst, dest_port); 
-    }
+        contains_ip_port(ip_port, ip_dst, dest_port)
+    ) { remove_ip_port(ip_port, ip_dst, dest_port); }
 
     if (
         (tcp_flags & 0x01 || tcp_flags & 0x04) && // FIN || RST
-        contains_ip_port(&ip_port, ip_src, source_port)
-    ) { 
-        printf("%d:%d", ip_src, source_port);
-        remove_ip_port(&ip_port, ip_src, source_port);
-    }
+        contains_ip_port(ip_port, ip_src, source_port)
+    ) { remove_ip_port(ip_port, ip_src, source_port); }
 
     bool isSSH = is_ssh_kex(tcp_payload);
 
-    if (isSSH) { push_back_ip_port(&ip_port, ip_src, dest_port); }  
-    if (!isSSH && contains_ip_port(&ip_port, ip_src, dest_port)) { isSSH = true; }
+    if (isSSH) { push_back_ip_port(ip_port, ip_src, dest_port); }  
+    if (!isSSH && contains_ip_port(ip_port, ip_src, dest_port)) { isSSH = true; }
 
     return isSSH;
 }

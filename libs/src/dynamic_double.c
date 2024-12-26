@@ -3,17 +3,18 @@
 
 #include "../head/dynamic_double.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int init_double_array(DoubleArray *array, size_t initial_capacity) {
+void init_double_array(DoubleArray *array, size_t initial_capacity) {
     array->array = (double *)malloc(initial_capacity * sizeof(double));
     if (array->array == NULL) {
-        return -1;
+        perror("Failed to allocate memory init_ip_port_array");
+        exit(EXIT_FAILURE);
     }
     array->count = 0;
     array->capacity = initial_capacity;
-    return 0;
 }
 
 void free_double_array(DoubleArray *array) {
@@ -25,13 +26,12 @@ void free_double_array(DoubleArray *array) {
 
 int push_back_double(DoubleArray *array, double val) {
     if (array->count >= array->capacity) {
-        size_t new_capacity = array->capacity * 2;
-        double *new_array = (double *)realloc(array->array, new_capacity * sizeof(double));
-        if (new_array == NULL) {
-            return -1;
+        array->capacity = 2 * array->capacity + 1;
+        array->array = (double *)realloc(array->array, array->capacity * sizeof(double));
+        if (array->array == NULL) {
+            perror("Failed to reallocate memory double array");
+            exit(EXIT_FAILURE);
         }
-        array->array = new_array;
-        array->capacity = new_capacity;
     }
 
     array->array[array->count] = val;
