@@ -65,8 +65,9 @@ size_t format_session(char *buffer, size_t buffer_size, FlowStat *session) {
     int ip_len = snprintf(
         buffer + header_length + value_length, 
         buffer_size - header_length - value_length,
-        "\n%s",
-        session->rec_ip
+        "\n%s,%d\n",
+        session->rec_ip,
+        session->port
     );
      
 
