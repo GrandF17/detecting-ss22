@@ -70,13 +70,21 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     inet_ntop(AF_INET, &(ip_header->ip_dst), dst_ip, INET_ADDRSTRLEN);
 
     // detecting interaction ip
+    const struct tcphdr *tcp_header = (struct tcphdr *)(packet + ETHERNET_HEADER_LEN + (ip_header->ip_hl * 4));
+
+    // extracting ports
+    uint16_t src_port = ntohs(tcp_header->th_sport);
+    uint16_t dst_port = ntohs(tcp_header->th_dport);
+
     const char *remote_ip = strcmp(src_ip, client_ip) == 0 ? dst_ip : src_ip;
+    const uint16_t remote_port = strcmp(src_ip, client_ip) == 0 ? dst_port : src_port;
+
     // find or init session for current remoute ip
-    int idx = get_stat_idx(&ip_stats, remote_ip);
+    int idx = get_stat_idx(&ip_stats, remote_ip, remote_port);
     FlowStat *session;
 
     if (idx == -1) {
-        int newIdx = create_stat(&ip_stats, remote_ip);
+        int newIdx = create_stat(&ip_stats, remote_ip, remote_port);
         if(newIdx == -1) {
             printf("ERROR (create_stat)!!!\n");
             exit(1);
@@ -88,7 +96,7 @@ void packet_handler(unsigned char *args, const struct pcap_pkthdr *header, const
     // current packets more than 'session_split_delay'
     if(session->start != 0 && session->last_upd + *session_split_delay * 1000 < milliseconds()) {
         finalize_flow(session, mode);
-        create_stat(&ip_stats, session->rec_ip);
+        create_stat(&ip_stats, session->rec_ip, session->port);
     }
 
     // counting server/client packets passed to each other
@@ -228,8 +236,8 @@ int main(int argc, char *argv[]) {
         mode = BROADCAST;
     } else if (memcmp(argv[3], COLLECT_SS22, strlen(COLLECT_SS22)) == 0) {
         mode = COLLECT_SS22;
-    } else if(memcmp(argv[3], COLLECT_LEGITIMATE_TRAFFIC, strlen(COLLECT_LEGITIMATE_TRAFFIC)) == 0) { 
-        mode = COLLECT_LEGITIMATE_TRAFFIC;
+    } else if(memcmp(argv[3], COLLECT_LT, strlen(COLLECT_LT)) == 0) { 
+        mode = COLLECT_LT;
     } else {
         return 1;
     }

@@ -12,7 +12,6 @@
  *
  * entropy calculation shows best effect on data more than 256 bytes
  */
-static double SS22_ENTROPY = 0.98370826;
 static const uint8_t bit_count_table[256] = {
     0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,

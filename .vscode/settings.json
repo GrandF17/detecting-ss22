@@ -30,6 +30,11 @@
     "string": "c",
     "time.h": "c",
     "json.h": "c",
-    "if_ether.h": "c"
+    "if_ether.h": "c",
+    "dynamic_ip_port.h": "c",
+    "new": "c",
+    "udp.h": "c",
+    "ip.h": "c",
+    "tcp.h": "c"
   }
 }

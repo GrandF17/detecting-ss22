@@ -27,17 +27,18 @@ void free_flow_stat_array(FlowStatArray *array) {
     array->capacity = 0;
 }
 
-int get_stat_idx(FlowStatArray *array, const char *ip_address) {
+int get_stat_idx(FlowStatArray *array, const char *ip_address, const uint16_t port) {
     for (size_t i = 0; i < array->count; ++i) {
-        if (strcmp(array->array[i].rec_ip, ip_address) == 0) {
-            return (int)i;
-        }
+        if (
+            strcmp(array->array[i].rec_ip, ip_address) == 0 &&
+            array->array[i].port == port
+        ) return (int)i;
     }
     return -1;
 }
 
-int create_stat(FlowStatArray *array, const char *ip_address) {
-    int ip_id = get_stat_idx(array, ip_address);
+int create_stat(FlowStatArray *array, const char *ip_address, const uint16_t port) {
+    int ip_id = get_stat_idx(array, ip_address, port);
     if (ip_id != -1) {
         // free mem space
         free_double_array(&array->array[ip_id].packet_entropy);
@@ -114,6 +115,7 @@ int create_stat(FlowStatArray *array, const char *ip_address) {
     }
 
     strcpy(array->array[array->count].rec_ip, ip_address);
+    array->array[array->count].port = port;
     init_double_array(&array->array[array->count].packet_entropy, 10);
     init_size_t_array(&array->array[array->count].packet_sizes, 10);
 

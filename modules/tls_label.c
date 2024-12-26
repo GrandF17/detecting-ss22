@@ -24,7 +24,7 @@
 #define CLIENT_HELLO 0x01
 #define SERVER_HELLO 0x02
 
-bool has_tls_label(const struct pcap_pkthdr *header, const char *packet) {
+bool has_tls_label(const struct pcap_pkthdr *header, const uint8_t *packet) {
     if (header->caplen < 54) {
         return false;
     }

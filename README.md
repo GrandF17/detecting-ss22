@@ -2,7 +2,7 @@
 
 ## To compile:
 ```bash
-gcc net_sniffer.c ./libs/src/dynamic_double.c ./libs/src/dynamic_size_t.c ./libs/src/dynamic_flow_stats.c -o sniffer -lpcap -lm -lwebsockets
+gcc net_sniffer.c ./libs/src/dynamic_double.c ./libs/src/dynamic_size_t.c ./libs/src/dynamic_flow_stats.c ./libs/src/dynamic_ip_port.c -o sniffer -lpcap -lm -lwebsockets
 ```
 
 ## To run:
@@ -10,7 +10,7 @@ gcc net_sniffer.c ./libs/src/dynamic_double.c ./libs/src/dynamic_size_t.c ./libs
 sudo ./sniffer <CLIENT_IP> <DELAY> <MODE>
 ```
 
-MODE: collect, broadcast
+MODE: collect_ss22, collect_lt, broadcast
 
 DELAY: 1, 2, 3... (just number in seconds)
 

@@ -83,7 +83,7 @@ int appendCSV(const char* file_name, const FlowStat* data, const bool collect_mo
 }
 
 void logCSV(const FlowStat* data) {
-    printf("IP %s: ", data->rec_ip);
+    printf("IP %s %d: ", data->rec_ip, data->port);
 
     // first packet:
     printf("%.6f,", data->first_pct_stat.entropy);

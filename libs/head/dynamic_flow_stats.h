@@ -7,7 +7,7 @@
 
 int init_flow_stat_array(FlowStatArray *array, size_t initial_capacity);
 void free_flow_stat_array(FlowStatArray *array);
-int get_stat_idx(FlowStatArray *array, const char *ip_address);
-int create_stat(FlowStatArray *array, const char *ip_address);
+int get_stat_idx(FlowStatArray *array, const char *ip_address, const uint16_t port);
+int create_stat(FlowStatArray *array, const char *ip_address, const uint16_t port);
 
 #endif

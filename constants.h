@@ -5,16 +5,16 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define ETHERNET_HEADER_LEN 14  // Ethernet header is 14 bytes
-#define ARP_PROTOCOL 0x0806     // ARP protocol 
+#define ETHERNET_HEADER_LEN 14      // Ethernet header is 14 bytes
+#define ARP_PROTOCOL 0x0806         // ARP protocol 
 
 #define PACKETS_AMOUNT 10
-#define INTERFACE "ens33"       // default interface on Ubuntu 24 to listen
+#define INTERFACE "ens33"           // default interface on Ubuntu 24 to listen
 
 // app modes:
-#define COLLECT_SS22 "collect_ss22"
-#define COLLECT_LEGITIMATE_TRAFFIC "collect_lt"
-#define BROADCAST "broadcast"
+#define COLLECT_SS22 "collect_ss22" // collect indicator (collecting legitimate traffic)
+#define COLLECT_LT "collect_lt"     // collect indicator (collecting shadowsocks22 traffic)
+#define BROADCAST "broadcast"       // broadcasting to ML based detector
 
 #define BUFFER_SIZE 1024
 
@@ -51,27 +51,39 @@ struct arp_header {
 };
 
 typedef struct {
-    double *array;
-    size_t count;
-    size_t capacity;
+    double *array;          // dynamic double array
+    size_t count;           // current size
+    size_t capacity;        // max size
 } DoubleArray;
 
 typedef struct {
-    size_t *array;
-    size_t count;
-    size_t capacity;
+    size_t *array;          // dynamic size_t array
+    size_t count;           // current size
+    size_t capacity;        // max size
 } SizeTArray;
 
 typedef struct {
+    uint32_t ip;            // IP-address (32 bits)
+    uint16_t port;          // Port (16 bits)
+} IP_Port;
+
+typedef struct {
+    IP_Port *data;         // dynamic ip + port array
+    size_t size;            // current size
+    size_t capacity;        // max size
+} IP_PortArray;
+
+typedef struct {
     double entropy;
-    bool range_of_six;         // first n > 6 bytes are in range [0x20,0x7e]
-    bool range_of_half;        // more than a half of bytes is in range [0x20,0x7e]
-    bool range_seq;    // more than 20 bytes are in range [0x20,0x7e]
+    bool range_of_six;      // first n > 6 bytes are in range [0x20,0x7e]
+    bool range_of_half;     // more than a half of bytes is in range [0x20,0x7e]
+    bool range_seq;         // more than 20 bytes are in range [0x20,0x7e]
     bool is_http_or_tls;
 } FirstPacket;
 
 typedef struct {
     char rec_ip[INET_ADDRSTRLEN];
+    uint16_t port;
     // =========================================
     // variables we will write down to csv file:
     FirstPacket first_pct_stat;
@@ -142,7 +154,8 @@ typedef struct {
 } FlowStatArray;
 
 
-// math statstics Structs:
+// ======================= //
+// math statstics Structs: //
 
 // Q1,Q2,Q3,IQR 
 typedef struct {
